@@ -85,7 +85,7 @@
     z-index: 1;
     order: unset;
     max-width: 40%;
-    padding: 64px 32px;
+    padding: 64px 32px 64px 58px;
   }
 
   .hero-homepage > div:first-child {
@@ -131,6 +131,6 @@
 
 @media (width >= 1200px) {
   .hero-homepage > div:last-child {
-    padding: 64px 32px 64px 64px;
+    padding: 64px 32px 64px 80px;
   }
 }
