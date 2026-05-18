@@ -1,11 +1,8 @@
-/* hero-homepage block - extracted from source: https://www.business.att.com/ */
-
-/* Source values: height 500px, flex row, content 50% left, image 50% right */
-
-/* Eyebrow: 26px/28px, H1: 48px/55.2px, Body: 18px/25.2px */
+/* hero-homepage block - light split hero with background image right */
 
 .hero-homepage-container {
   margin-top: 0 !important;
+  background-color: #e8f4f8;
 }
 
 .hero-homepage-wrapper {
@@ -13,22 +10,20 @@
   padding: 0 !important;
 }
 
-/* Mobile-first: stacked column layout */
 .hero-homepage {
+  position: relative;
   display: flex;
   flex-direction: column;
-  background-color: var(--background-color);
-  color: var(--text-color);
   overflow: hidden;
+  background-color: #e8f4f8;
 }
 
-/* Row 1 = image row, Row 2 = content row */
-
-/* On mobile: image on top (order 1), text below (order 2) */
+/* Row 1 = image (becomes background on desktop) */
 .hero-homepage > div:first-child {
   order: 1;
 }
 
+/* Row 2 = text content */
 .hero-homepage > div:last-child {
   order: 2;
   display: flex;
@@ -37,7 +32,7 @@
   padding: 32px 24px;
 }
 
-/* Eyebrow cell (first cell in content row) */
+/* Eyebrow */
 .hero-homepage > div:last-child > div:first-child {
   font-size: 20px;
   font-weight: 400;
@@ -51,9 +46,7 @@
   margin: 0;
 }
 
-/* H1 cell (second cell in content row) */
-
-/* Source uses attAleckSans-Bold at weight 400; equivalent is heading font at 700 */
+/* H1 heading */
 .hero-homepage > div:last-child > div:nth-child(2) h1 {
   font-size: 36px;
   font-weight: 700;
@@ -64,7 +57,7 @@
   margin: 8px 0 16px;
 }
 
-/* Body text cell (third cell in content row) */
+/* Body text */
 .hero-homepage > div:last-child > div:nth-child(3) {
   font-size: 16px;
   font-family: var(--body-font-family);
@@ -86,55 +79,56 @@
   width: 100%;
   height: auto;
   object-fit: cover;
+  object-position: right center;
   display: block;
 }
 
-/* Desktop: side-by-side layout at 900px+ */
+/* Desktop: image becomes absolute background on right, content left */
 @media (width >= 900px) {
   .hero-homepage {
     flex-direction: row;
     height: 500px;
+    max-width: 1324px;
+    margin: 0 auto;
   }
 
-  /* Content panel (left): source flex 1 0 50%, max-width 616px, align-self center */
+  /* Content panel: left side, vertically centered */
   .hero-homepage > div:last-child {
+    position: relative;
+    z-index: 1;
     order: 1;
     flex: 1 0 50%;
-    max-width: 50%;
+    max-width: 616px;
     padding: 0 32px;
     align-self: center;
   }
 
-  /* Image panel (right): source flex 1 0 50%, height 500px, overflow hidden */
+  /* Image panel: right side, fills remaining space */
   .hero-homepage > div:first-child {
     order: 2;
     flex: 1 0 50%;
-    max-width: 50%;
+    position: relative;
     overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
   }
 
   .hero-homepage > div:first-child > div {
     height: 100%;
-    width: 100%;
   }
 
-  /* Eyebrow: source 26px, font-weight 400, line-height 28px */
+  /* Eyebrow desktop */
   .hero-homepage > div:last-child > div:first-child {
     font-size: 26px;
     line-height: 28px;
   }
 
-  /* H1: source 48px, font-weight 400 (bold face), line-height 55.2px, letter-spacing -1.44px */
+  /* H1 desktop */
   .hero-homepage > div:last-child > div:nth-child(2) h1 {
     font-size: 48px;
     line-height: 55.2px;
     letter-spacing: -1.44px;
   }
 
-  /* Body text: source 18px, line-height 25.2px */
+  /* Body desktop */
   .hero-homepage > div:last-child > div:nth-child(3) {
     font-size: 18px;
     line-height: 25.2px;
@@ -149,10 +143,10 @@
     height: 100%;
     width: 100%;
     object-fit: cover;
+    object-position: right center;
   }
 }
 
-/* Large desktop: source padding shifts to 0 32px 0 64px */
 @media (width >= 1200px) {
   .hero-homepage > div:last-child {
     padding: 0 32px 0 64px;
