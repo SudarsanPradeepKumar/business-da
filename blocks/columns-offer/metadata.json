@@ -1,0 +1,39 @@
+{
+  "variantName": "columns-offer",
+  "baseBlock": "columns",
+  "version": "1.0.0",
+  "created": "2026-05-18T18:14:00.000Z",
+  "sourceContext": {
+    "originUrl": "https://www.business.att.com/",
+    "originPage": "AT&T Business homepage",
+    "blockPosition": "middle"
+  },
+  "visualCharacteristics": {
+    "colorScheme": "light",
+    "density": "spacious",
+    "purpose": "offer-content",
+    "imagePattern": "large"
+  },
+  "contentPattern": {
+    "structure": "text-column + image-column",
+    "buttonCount": 1,
+    "imageCount": 1
+  },
+  "reuseGuidance": {
+    "suitableFor": [
+      "side-by-side offer content with image",
+      "feature sections with text and illustration",
+      "promotional content with badge/award images"
+    ],
+    "notSuitableFor": [
+      "multi-column link lists",
+      "equal-weight content columns",
+      "image-only galleries"
+    ]
+  },
+  "usage": {
+    "pagesUsing": ["/index"],
+    "reuseCount": 1,
+    "lastUsed": "2026-05-18T18:14:00.000Z"
+  }
+}

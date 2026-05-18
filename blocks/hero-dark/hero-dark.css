@@ -1,0 +1,170 @@
+/* hero-dark block - dark themed hero with background image and content overlay */
+
+.hero-dark-wrapper {
+  max-width: unset !important;
+  padding: 0 !important;
+}
+
+.hero-dark {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 360px;
+  padding: 48px 24px;
+  overflow: hidden;
+  background-color: var(--dark-color);
+  color: #fff;
+}
+
+/* Row 1: Background image - positioned absolutely behind content */
+.hero-dark > div:first-child {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.hero-dark > div:first-child picture {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.hero-dark > div:first-child img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Row 2: Content - positioned above the background */
+.hero-dark > div:last-child {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  max-width: 960px;
+  margin: 0 auto;
+  width: 100%;
+  flex: 1;
+}
+
+/* Content cell */
+.hero-dark > div:last-child > div {
+  max-width: 100%;
+}
+
+/* Heading */
+.hero-dark h2 {
+  font-size: 32px;
+  font-weight: 700;
+  font-family: var(--heading-font-family);
+  line-height: 1.15;
+  color: #fff;
+  margin: 8px 0 16px;
+}
+
+/* Body paragraph - general rule before specific eyebrow */
+.hero-dark p {
+  font-size: 16px;
+  font-family: var(--body-font-family);
+  line-height: 1.4;
+  color: #fff;
+  margin: 0 0 16px;
+}
+
+/* Eyebrow text - first paragraph override */
+.hero-dark > div:last-child > div > p:first-child {
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 24px;
+  color: #fff;
+  margin: 0 0 8px;
+}
+
+/* CTA link styled as button */
+.hero-dark a:any-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 400;
+  color: #00388f;
+  background-color: var(--accent-color);
+  padding: 12px 32px;
+  border-radius: 28px;
+  border: 0;
+  text-decoration: none;
+  min-height: 40px;
+  margin-top: 8px;
+}
+
+.hero-dark a:hover {
+  background-color: #fff;
+  color: #00388f;
+  text-decoration: none;
+}
+
+/* Button wrapper override - prevent EDS button styling */
+.hero-dark p.button-wrapper {
+  margin: 8px 0 0;
+}
+
+.hero-dark a.button:any-link {
+  background-color: var(--accent-color);
+  color: #00388f;
+  border-color: var(--accent-color);
+  padding: 12px 32px;
+  border-radius: 28px;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.hero-dark a.button:hover {
+  background-color: #fff;
+  border-color: #fff;
+  color: #00388f;
+}
+
+@media (width >= 900px) {
+  .hero-dark {
+    min-height: 410px;
+    padding: 48px 32px;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  /* On desktop, background image fills full width */
+  .hero-dark > div:first-child {
+    position: absolute;
+    inset: 0;
+  }
+
+  /* Content positioned on the left half */
+  .hero-dark > div:last-child {
+    max-width: 1200px;
+    padding: 0 32px;
+  }
+
+  .hero-dark > div:last-child > div {
+    max-width: 50%;
+  }
+
+  /* Heading desktop size */
+  .hero-dark h2 {
+    font-size: 48px;
+    line-height: 1.15;
+    font-weight: 400;
+  }
+
+  /* Body text */
+  .hero-dark p {
+    font-size: 18px;
+    line-height: 25.2px;
+  }
+
+  /* Eyebrow text desktop */
+  .hero-dark > div:last-child > div > p:first-child {
+    font-size: 28px;
+    line-height: 30px;
+  }
+}

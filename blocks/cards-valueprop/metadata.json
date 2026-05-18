@@ -1,0 +1,39 @@
+{
+  "variantName": "cards-valueprop",
+  "baseBlock": "cards",
+  "version": "1.0.0",
+  "created": "2026-05-18T18:14:00.000Z",
+  "sourceContext": {
+    "originUrl": "https://www.business.att.com/",
+    "originPage": "AT&T Business homepage",
+    "blockPosition": "middle"
+  },
+  "visualCharacteristics": {
+    "colorScheme": "light",
+    "density": "spacious",
+    "purpose": "value-proposition",
+    "imagePattern": "icon"
+  },
+  "contentPattern": {
+    "structure": "icon + heading + description + link",
+    "buttonCount": 1,
+    "imageCount": 1
+  },
+  "reuseGuidance": {
+    "suitableFor": [
+      "value proposition sections with icons",
+      "feature highlight grids",
+      "benefit cards with small icons and text"
+    ],
+    "notSuitableFor": [
+      "product cards with large images",
+      "testimonial cards",
+      "promotional deal cards"
+    ]
+  },
+  "usage": {
+    "pagesUsing": ["/index"],
+    "reuseCount": 1,
+    "lastUsed": "2026-05-18T18:14:00.000Z"
+  }
+}

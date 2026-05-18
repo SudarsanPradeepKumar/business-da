@@ -1,0 +1,225 @@
+{
+  "metadata": {
+    "projectType": "da"
+  },
+  "templates": [
+    {
+      "name": "homepage",
+      "urls": [
+        "https://www.business.att.com/"
+      ],
+      "description": "AT&T Business homepage with hero banner, product/service offerings, and promotional content",
+      "blocks": [
+        {
+          "name": "hero-homepage",
+          "instances": [
+            "main#baem-container .root > .aem-Grid > .hero.aem-GridColumn:nth-child(1)"
+          ]
+        },
+        {
+          "name": "cards-product",
+          "instances": [
+            "main#baem-container .multi-tile-cards.aem-GridColumn:nth-of-type(1)"
+          ]
+        },
+        {
+          "name": "cards-promo",
+          "instances": [
+            ".flex-cards.aem-GridColumn"
+          ]
+        },
+        {
+          "name": "cards-valueprop",
+          "instances": [
+            ".generic-list-value-prop.aem-GridColumn"
+          ]
+        },
+        {
+          "name": "columns-offer",
+          "instances": [
+            ".offer.aem-GridColumn:nth-of-type(1)",
+            ".offer.aem-GridColumn:nth-of-type(2)",
+            ".link-farm.aem-GridColumn"
+          ]
+        },
+        {
+          "name": "hero-dark",
+          "instances": [
+            "main#baem-container .root > .aem-Grid > .hero.aem-GridColumn:nth-child(2)",
+            "main#baem-container .root > .aem-Grid > .hero.aem-GridColumn:nth-child(3)"
+          ]
+        },
+        {
+          "name": "carousel-industry",
+          "instances": [
+            ".story-stack.aem-GridColumn"
+          ]
+        },
+        {
+          "name": "cards-testimonial",
+          "instances": [
+            ".multi-tile-cards.aem-GridColumn:nth-of-type(2)"
+          ]
+        },
+        {
+          "name": "form",
+          "instances": [
+            ".rai-form.aem-GridColumn"
+          ]
+        }
+      ],
+      "sections": [
+        {
+          "id": "section-1",
+          "name": "Hero",
+          "selector": "main#baem-container .root > .aem-Grid > .hero.aem-GridColumn:nth-child(1)",
+          "style": null,
+          "blocks": [
+            "hero-homepage"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "section-2",
+          "name": "Products",
+          "selector": "main#baem-container .multi-tile-cards.aem-GridColumn:nth-of-type(1)",
+          "style": null,
+          "blocks": [
+            "cards-product"
+          ],
+          "defaultContent": [
+            ".multi-tile-cards .eyebrow-heading h2",
+            ".multi-tile-cards .type-base"
+          ]
+        },
+        {
+          "id": "section-3",
+          "name": "Promos",
+          "selector": ".flex-cards.aem-GridColumn",
+          "style": null,
+          "blocks": [
+            "cards-promo"
+          ],
+          "defaultContent": [
+            ".flex-cards h2"
+          ]
+        },
+        {
+          "id": "section-4",
+          "name": "Value Props",
+          "selector": ".generic-list-value-prop.aem-GridColumn",
+          "style": null,
+          "blocks": [
+            "cards-valueprop"
+          ],
+          "defaultContent": [
+            ".generic-list-value-prop h2",
+            ".generic-list-value-prop .type-base"
+          ]
+        },
+        {
+          "id": "section-5",
+          "name": "JD Power Award",
+          "selector": ".offer.aem-GridColumn:nth-of-type(1)",
+          "style": "grey",
+          "blocks": [
+            "columns-offer"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "section-6",
+          "name": "Dark Hero - Connectivity",
+          "selector": "main#baem-container .root > .aem-Grid > .hero.aem-GridColumn:nth-child(2)",
+          "style": null,
+          "blocks": [
+            "hero-dark"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "section-7",
+          "name": "Micro Banner",
+          "selector": ".micro-banner.aem-GridColumn",
+          "style": "accent",
+          "blocks": [],
+          "defaultContent": [
+            ".micro-banner h2, .micro-banner .type-base, .micro-banner .type-legal"
+          ]
+        },
+        {
+          "id": "section-8",
+          "name": "Switch to ATT",
+          "selector": ".offer.aem-GridColumn:nth-of-type(2)",
+          "style": null,
+          "blocks": [
+            "columns-offer"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "section-9",
+          "name": "Industry Carousel",
+          "selector": ".story-stack.aem-GridColumn",
+          "style": null,
+          "blocks": [
+            "carousel-industry"
+          ],
+          "defaultContent": [
+            ".story-stack h2",
+            ".story-stack .type-base"
+          ]
+        },
+        {
+          "id": "section-10",
+          "name": "Dark Hero - Guarantee",
+          "selector": "main#baem-container .root > .aem-Grid > .hero.aem-GridColumn:nth-child(3)",
+          "style": null,
+          "blocks": [
+            "hero-dark"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "section-11",
+          "name": "Testimonials",
+          "selector": ".multi-tile-cards.aem-GridColumn:nth-of-type(2)",
+          "style": null,
+          "blocks": [
+            "cards-testimonial"
+          ],
+          "defaultContent": [
+            ".multi-tile-cards:nth-of-type(2) h2",
+            ".multi-tile-cards:nth-of-type(2) .type-base"
+          ]
+        },
+        {
+          "id": "section-12",
+          "name": "Contact Form",
+          "selector": ".rai-form.aem-GridColumn",
+          "style": "grey",
+          "blocks": [
+            "form"
+          ],
+          "defaultContent": [
+            ".rai-form .RAIHeader h2",
+            ".rai-form .RAIHeader .type-base",
+            ".rai-form .RAIHeader .type-legal"
+          ]
+        },
+        {
+          "id": "section-13",
+          "name": "Link Farm",
+          "selector": ".link-farm.aem-GridColumn",
+          "style": "grey",
+          "blocks": [
+            "columns-offer"
+          ],
+          "defaultContent": [
+            ".link-farm h2"
+          ]
+        }
+      ]
+    }
+  ]
+}

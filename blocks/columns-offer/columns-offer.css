@@ -1,0 +1,51 @@
+/* Block: columns-offer
+ * A multi-column link list layout (e.g., "Looking for more?" section).
+ * 4 equal columns on desktop, stacked on mobile.
+ * Typically placed in a grey-background section.
+ */
+
+/* Base / mobile styles */
+.columns-offer > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.columns-offer > div > div {
+  padding: 0;
+}
+
+.columns-offer ul {
+  list-style: none;
+  margin: 0 0 10px;
+  padding: 0;
+}
+
+.columns-offer ul > li {
+  padding: 8px 0;
+  line-height: 21px;
+}
+
+.columns-offer ul > li a:any-link {
+  color: rgb(69 75 82);
+  font-size: 15px;
+  font-weight: 400;
+  text-decoration: none;
+}
+
+.columns-offer ul > li a:hover {
+  text-decoration: underline;
+  color: var(--link-color);
+}
+
+/* Desktop layout - 4 equal columns */
+@media (width >= 900px) {
+  .columns-offer > div {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+  }
+
+  .columns-offer > div > div {
+    flex: 1 0 0;
+  }
+}

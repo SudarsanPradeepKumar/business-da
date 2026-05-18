@@ -1,0 +1,174 @@
+/* Block: cards-promo -- Promotional deal cards in mixed-size grid layout */
+
+.cards-promo > ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.cards-promo > ul > li {
+  background-color: rgb(243 244 246);
+  border-radius: 16px;
+  position: relative;
+  overflow: hidden;
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.cards-promo > ul > li:nth-child(2) {
+  background-color: rgb(37 48 58);
+  color: rgb(255 255 255);
+}
+
+.cards-promo .cards-promo-card-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Eyebrow text (first p in card body) */
+.cards-promo .cards-promo-card-body > p:first-child {
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 19px;
+  color: rgb(29 35 41);
+  margin: 0;
+}
+
+/* Heading */
+.cards-promo h3 {
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.84px;
+  color: rgb(29 35 41);
+  margin: 0;
+}
+
+/* Description text */
+.cards-promo .cards-promo-card-body > p:nth-child(3) {
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 23.8px;
+  color: rgb(69 75 82);
+  margin: 0;
+}
+
+/* Legal/fine print text */
+.cards-promo .cards-promo-card-body > p:nth-child(4) {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 16.8px;
+  color: rgb(69 75 82);
+  margin: 0;
+}
+
+.cards-promo .cards-promo-card-body > p:nth-child(4) a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+/* CTA button container */
+.cards-promo .cards-promo-card-body > p:last-child {
+  margin: 8px 0 0;
+}
+
+.cards-promo .cards-promo-card-body .button-container {
+  margin: 8px 0 0;
+}
+
+/* CTA button */
+main .cards-promo a.button:any-link {
+  background-color: rgb(0 56 143);
+  color: rgb(242 250 253);
+  border: none;
+  border-radius: 28px;
+  padding: 0 32px;
+  height: 48px;
+  font-size: 14px;
+  font-weight: 400;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+main .cards-promo a.button:any-link:hover {
+  background-color: rgb(0 40 110);
+  color: rgb(242 250 253);
+  text-decoration: none;
+}
+
+/* Dark theme card overrides */
+.cards-promo > ul > li:nth-child(2) .cards-promo-card-body > p:first-child {
+  color: rgb(255 255 255);
+}
+
+.cards-promo > ul > li:nth-child(2) .cards-promo-card-body h3 {
+  color: rgb(255 255 255);
+}
+
+.cards-promo > ul > li:nth-child(2) .cards-promo-card-body > p:nth-child(3) {
+  color: rgb(255 255 255);
+}
+
+.cards-promo > ul > li:nth-child(2) .cards-promo-card-body > p:nth-child(4) {
+  color: rgb(255 255 255);
+}
+
+/* Dark card inverted CTA */
+main .cards-promo > ul > li:nth-child(2) a.button:any-link {
+  background-color: rgb(242 250 253);
+  color: rgb(0 56 143);
+}
+
+main .cards-promo > ul > li:nth-child(2) a.button:any-link:hover {
+  background-color: rgb(255 255 255);
+  color: rgb(0 40 110);
+}
+
+/* Desktop layout */
+@media (width >= 900px) {
+  .cards-promo > ul {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 32px;
+  }
+
+  .cards-promo > ul > li:nth-child(1) {
+    min-height: 500px;
+  }
+
+  .cards-promo > ul > li:nth-child(2) {
+    min-height: 500px;
+  }
+
+  .cards-promo > ul > li:nth-child(3) {
+    grid-column: 1 / -1;
+    min-height: 400px;
+  }
+
+  .cards-promo .cards-promo-card-body {
+    padding: 24px 0 24px 24px;
+    max-width: 55%;
+  }
+
+  .cards-promo > ul > li:nth-child(3) .cards-promo-card-body {
+    max-width: 50%;
+    padding: 32px;
+  }
+
+  .cards-promo h3 {
+    font-size: 28px;
+    line-height: 32.2px;
+  }
+}
