@@ -1,8 +1,8 @@
-/* hero-homepage block - light split hero with background image right */
+/* hero-homepage block - full-width background image with text overlay */
 
 .hero-homepage-container {
   margin-top: 0 !important;
-  }
+}
 
 .hero-homepage-wrapper {
   max-width: unset !important;
@@ -14,9 +14,9 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  }
+}
 
-/* Row 1 = image (becomes background on desktop) */
+/* Row 1 = image (absolute background on desktop) */
 .hero-homepage > div:first-child {
   order: 1;
 }
@@ -77,35 +77,31 @@
   width: 100%;
   height: auto;
   object-fit: cover;
-  object-position: right center;
+  object-position: left center;
   display: block;
 }
 
-/* Desktop: image becomes absolute background on right, content left */
+/* Desktop: image becomes full-width absolute background, content overlays left */
 @media (width >= 900px) {
   .hero-homepage {
-    flex-direction: row;
-    max-width: 1324px;
-    margin: 0 auto;
+    min-height: 500px;
   }
 
-  /* Content panel: left side, vertically centered */
+  /* Content panel: overlays on top left */
   .hero-homepage > div:last-child {
     position: relative;
     z-index: 1;
-    order: 1;
-    flex: 1 0 50%;
-    max-width: 616px;
-    padding: 0 32px;
+    order: unset;
+    max-width: 50%;
+    padding: 64px 32px;
     align-self: center;
   }
 
-  /* Image panel: right side, fills remaining space */
+  /* Image panel: absolute, covers entire block */
   .hero-homepage > div:first-child {
-    order: 2;
-    flex: 1 0 50%;
-    position: relative;
-    overflow: hidden;
+    position: absolute;
+    inset: 0;
+    order: unset;
   }
 
   .hero-homepage > div:first-child > div {
@@ -140,12 +136,12 @@
     height: 100%;
     width: 100%;
     object-fit: cover;
-    object-position: right center;
+    object-position: left center;
   }
 }
 
 @media (width >= 1200px) {
   .hero-homepage > div:last-child {
-    padding: 0 32px 0 64px;
+    padding: 64px 32px 64px 64px;
   }
 }
