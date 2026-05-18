@@ -1,17 +1,42 @@
 /* Block: columns-offer
- * A multi-column link list layout (e.g., "Looking for more?" section).
- * 4 equal columns on desktop, stacked on mobile.
- * Typically placed in a grey-background section.
+ * Multi-column link list layout (e.g., "Looking for more?" link farm).
+ * 4 equal columns on desktop, stacked vertically on mobile.
+ * Source: .link-farm section on business.att.com
+ *
+ * Extracted values:
+ *   background: rgb(243, 244, 246) - mapped to var(--light-color)
+ *   padding: 64px (section wrapper)
+ *   container max-width: 1324px
+ *   column gap: 32px (via padding-left on cols 2-4)
+ *   link color: rgb(69, 75, 82)
+ *   link font-size: 15px
+ *   link line-height: 21px
+ *   li padding: 8px 0
  */
 
 /* Base / mobile styles */
+main > .section > .columns-offer-wrapper {
+  background-color: var(--light-color);
+  padding: 48px 24px;
+  max-width: 100% !important;
+  text-align: left;
+}
+
+.columns-offer {
+  padding: 16px 0;
+  text-align: left;
+  max-width: 1324px;
+  margin: 0 auto;
+}
+
 .columns-offer > div {
   display: flex;
   flex-direction: column;
+  gap: 0;
 }
 
 .columns-offer > div > div {
-  padding: 0;
+  padding: 0 0 16px;
 }
 
 .columns-offer ul {
@@ -29,7 +54,9 @@
   color: rgb(69 75 82);
   font-size: 15px;
   font-weight: 400;
+  font-family: var(--body-font-family);
   text-decoration: none;
+  line-height: 21px;
 }
 
 .columns-offer ul > li a:hover {
@@ -39,6 +66,14 @@
 
 /* Desktop layout - 4 equal columns */
 @media (width >= 900px) {
+  main > .section > .columns-offer-wrapper {
+    padding: 64px;
+  }
+
+  .columns-offer {
+    padding: 0;
+  }
+
   .columns-offer > div {
     display: flex;
     flex-flow: row nowrap;
@@ -47,5 +82,11 @@
 
   .columns-offer > div > div {
     flex: 1 0 0;
+    max-width: 25%;
+    padding: 0;
+  }
+
+  .columns-offer > div > div:not(:first-child) {
+    padding-left: 32px;
   }
 }

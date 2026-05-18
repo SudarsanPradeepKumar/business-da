@@ -1,23 +1,25 @@
-/* Block: cards-product - Product category cards grid */
+/* Block: cards-product - Product category cards grid
+   Values extracted from source: https://www.business.att.com/ (2026-05-18) */
 
+/* Grid layout - mobile first (1 column) */
 .cards-product > ul {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  grid-template-columns: 1fr;
+  gap: 32px;
 }
 
+/* Card item */
 .cards-product > ul > li {
-  background-color: var(--background-color);
   border-radius: 16px;
-  box-shadow: 0 2px 8px rgb(0 0 0 / 10%);
   overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 
+/* Card image area */
 .cards-product .cards-product-card-image {
   line-height: 0;
 }
@@ -34,87 +36,129 @@
   border-radius: 16px 16px 0 0;
 }
 
+/* Card body/content area */
 .cards-product .cards-product-card-body {
-  padding: 16px;
+  background-color: var(--accent-color);
+  padding: 24px;
   display: flex;
   flex-direction: column;
   flex: 1;
+  justify-content: space-between;
+  border-radius: 0 0 16px 16px;
 }
 
+/* Heading */
 .cards-product .cards-product-card-body h3 {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 700;
   font-family: var(--heading-font-family);
   line-height: 1.15;
+  letter-spacing: -0.78px;
   color: #1d2329;
-  margin: 8px 0 0;
+  margin: 0 0 8px;
 }
 
+/* Description paragraph */
 .cards-product .cards-product-card-body p {
-  font-size: 14px;
+  font-size: 15px;
+  font-weight: 400;
   font-family: var(--body-font-family);
-  line-height: 1.2;
-  color: #1d2329;
-  margin: 8px 0 0;
+  line-height: 21px;
+  color: #454b52;
+  margin: 0 0 8px;
 }
 
+/* Legal/italic text */
 .cards-product .cards-product-card-body p em {
   font-size: 12px;
-  line-height: 1.2;
+  line-height: 14.4px;
   color: #1d2329;
   font-style: italic;
 }
 
-/* CTA link at bottom of card - reset EDS button decoration */
+/* CTA link container - push to bottom of card */
 .cards-product .cards-product-card-body p:last-child {
+  margin-top: auto;
+  padding-top: 16px;
+  margin-bottom: 0;
+}
+
+/* EDS button-container (if button decoration applies) */
+.cards-product .cards-product-card-body .button-container {
+  margin: 0;
   margin-top: auto;
   padding-top: 16px;
 }
 
-.cards-product .cards-product-card-body a:any-link {
-  color: var(--link-color);
-  font-size: 14px;
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.cards-product .cards-product-card-body a:hover {
-  text-decoration: underline;
-}
-
-/* Reset EDS button styling for the CTA links */
-.cards-product .cards-product-card-body .button-container {
-  margin: 0;
-}
-
-.cards-product .cards-product-card-body a.button:any-link {
-  background-color: transparent;
+/* CTA pill button - style the last-child p > a as a button */
+.cards-product .cards-product-card-body p:last-child > a:any-link {
+  background-color: #00388f;
+  color: #fff;
   border: none;
-  border-radius: 0;
-  padding: 0;
-  color: var(--link-color);
+  border-radius: 28px;
+  padding: 0 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
   font-size: 14px;
   font-weight: 700;
+  font-family: var(--heading-font-family);
   text-decoration: none;
-  display: inline;
-  white-space: normal;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.cards-product .cards-product-card-body p:last-child > a:hover {
+  background-color: #002a6b;
+  text-decoration: none;
+}
+
+/* Also handle if EDS button class gets applied */
+.cards-product .cards-product-card-body a.button:any-link {
+  background-color: #00388f;
+  color: #fff;
+  border: none;
+  border-radius: 28px;
+  padding: 0 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: var(--heading-font-family);
+  text-decoration: none;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .cards-product .cards-product-card-body a.button:hover {
-  background-color: transparent;
+  background-color: #002a6b;
+  text-decoration: none;
+}
+
+/* Inline links within body text (e.g. "See offer details") */
+.cards-product .cards-product-card-body p:not(:last-child) a:any-link {
+  color: #1d2329;
+  font-size: inherit;
+  font-weight: 400;
   text-decoration: underline;
 }
 
+/* Tablet: 2 columns */
 @media (width >= 600px) {
   .cards-product > ul {
     grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
   }
 }
 
+/* Desktop: 3 columns */
 @media (width >= 900px) {
   .cards-product > ul {
     grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
+    gap: 32px;
   }
 
   .cards-product .cards-product-card-body h3 {
@@ -123,13 +167,7 @@
   }
 
   .cards-product .cards-product-card-body p {
-    font-size: 16px;
-    line-height: 19px;
-  }
-}
-
-@media (width >= 1200px) {
-  .cards-product > ul {
-    grid-template-columns: repeat(3, 1fr);
+    font-size: 15px;
+    line-height: 21px;
   }
 }

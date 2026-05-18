@@ -1,17 +1,19 @@
-/* hero-homepage: light split hero (text left, image right) */
+/* hero-homepage block - extracted from source: https://www.business.att.com/ */
 
-/* Section-level overrides */
+/* Source values: height 500px, flex row, content 50% left, image 50% right */
+
+/* Eyebrow: 26px/28px, H1: 48px/55.2px, Body: 18px/25.2px */
+
 .hero-homepage-container {
   margin-top: 0 !important;
 }
 
-/* Full-width wrapper override */
 .hero-homepage-wrapper {
   max-width: unset !important;
   padding: 0 !important;
 }
 
-/* Block container */
+/* Mobile-first: stacked column layout */
 .hero-homepage {
   display: flex;
   flex-direction: column;
@@ -20,12 +22,13 @@
   overflow: hidden;
 }
 
-/* Row 1: image */
+/* Row 1 = image row, Row 2 = content row */
+
+/* On mobile: image on top (order 1), text below (order 2) */
 .hero-homepage > div:first-child {
   order: 1;
 }
 
-/* Row 2: text content */
 .hero-homepage > div:last-child {
   order: 2;
   display: flex;
@@ -34,41 +37,41 @@
   padding: 32px 24px;
 }
 
-/* Eyebrow text (first cell in text row) */
+/* Eyebrow cell (first cell in content row) */
 .hero-homepage > div:last-child > div:first-child {
-  font-size: var(--body-font-size-xs);
+  font-size: 20px;
   font-weight: 400;
-  color: var(--text-color);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  line-height: 1.5;
+  font-family: var(--body-font-family);
+  line-height: 1.4;
+  color: #1d2329;
   margin-bottom: 8px;
 }
 
-/* Reset paragraph inside eyebrow cell */
 .hero-homepage > div:last-child > div:first-child p {
   margin: 0;
 }
 
-/* H1 cell */
+/* H1 cell (second cell in content row) */
+
+/* Source uses attAleckSans-Bold at weight 400; equivalent is heading font at 700 */
 .hero-homepage > div:last-child > div:nth-child(2) h1 {
-  font-size: var(--heading-font-size-xxl);
+  font-size: 36px;
   font-weight: 700;
   font-family: var(--heading-font-family);
-  line-height: 1.2;
-  color: var(--text-color);
-  margin: 0 0 16px;
+  line-height: 1.15;
+  letter-spacing: -0.5px;
+  color: #1d2329;
+  margin: 8px 0 16px;
 }
 
-/* Body text cell */
+/* Body text cell (third cell in content row) */
 .hero-homepage > div:last-child > div:nth-child(3) {
-  font-size: var(--body-font-size-m);
+  font-size: 16px;
   font-family: var(--body-font-family);
-  line-height: 1.5;
-  color: var(--text-color);
+  line-height: 1.4;
+  color: #454b52;
 }
 
-/* Reset paragraph inside body cell */
 .hero-homepage > div:last-child > div:nth-child(3) p {
   margin: 0;
 }
@@ -86,45 +89,72 @@
   display: block;
 }
 
-/* Desktop: side-by-side split layout */
+/* Desktop: side-by-side layout at 900px+ */
 @media (width >= 900px) {
   .hero-homepage {
     flex-direction: row;
-    min-height: 480px;
+    height: 500px;
   }
 
-  /* Text area: left side ~45% */
+  /* Content panel (left): source flex 1 0 50%, max-width 616px, align-self center */
   .hero-homepage > div:last-child {
     order: 1;
-    flex: 0 0 45%;
-    padding: 48px 48px 48px 64px;
-    max-width: 45%;
+    flex: 1 0 50%;
+    max-width: 50%;
+    padding: 0 32px;
+    align-self: center;
   }
 
-  /* Image area: right side ~55% */
+  /* Image panel (right): source flex 1 0 50%, height 500px, overflow hidden */
   .hero-homepage > div:first-child {
     order: 2;
-    flex: 0 0 55%;
-    max-width: 55%;
+    flex: 1 0 50%;
+    max-width: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .hero-homepage > div:first-child > div {
     height: 100%;
+    width: 100%;
+  }
+
+  /* Eyebrow: source 26px, font-weight 400, line-height 28px */
+  .hero-homepage > div:last-child > div:first-child {
+    font-size: 26px;
+    line-height: 28px;
+  }
+
+  /* H1: source 48px, font-weight 400 (bold face), line-height 55.2px, letter-spacing -1.44px */
+  .hero-homepage > div:last-child > div:nth-child(2) h1 {
+    font-size: 48px;
+    line-height: 55.2px;
+    letter-spacing: -1.44px;
+  }
+
+  /* Body text: source 18px, line-height 25.2px */
+  .hero-homepage > div:last-child > div:nth-child(3) {
+    font-size: 18px;
+    line-height: 25.2px;
   }
 
   .hero-homepage picture {
     height: 100%;
+    width: 100%;
   }
 
   .hero-homepage img {
-    width: 100%;
     height: 100%;
+    width: 100%;
     object-fit: cover;
   }
 }
 
+/* Large desktop: source padding shifts to 0 32px 0 64px */
 @media (width >= 1200px) {
   .hero-homepage > div:last-child {
-    padding: 64px 48px 64px 80px;
+    padding: 0 32px 0 64px;
   }
 }

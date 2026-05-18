@@ -1,27 +1,133 @@
+/* Block: cards-testimonial
+ * Customer story/testimonial cards in a responsive grid.
+ * Source values extracted from https://www.business.att.com/
+ * 4 cards: image top (rounded), eyebrow, quote heading, description, attribution, CTA button
+ */
+
 .cards-testimonial > ul {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(257px, 1fr));
-  gap: 24px;
+  grid-template-columns: 1fr;
+  gap: 32px;
 }
 
 .cards-testimonial > ul > li {
-  border: 1px solid #dadada;
   background-color: var(--background-color);
-}
-
-.cards-testimonial .cards-testimonial-card-body {
-  margin: 16px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 8%);
 }
 
 .cards-testimonial .cards-testimonial-card-image {
   line-height: 0;
 }
 
-.cards-testimonial > ul > li img {
+.cards-testimonial .cards-testimonial-card-image picture {
+  display: block;
+}
+
+.cards-testimonial .cards-testimonial-card-image img {
   width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
+  height: auto;
+  display: block;
+}
+
+.cards-testimonial .cards-testimonial-card-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0%;
+}
+
+/* Eyebrow text (first p - industry category) */
+.cards-testimonial .cards-testimonial-card-body > p:first-child {
+  font-size: 16px;
+  font-family: var(--body-font-family);
+  font-weight: 400;
+  line-height: 19px;
+  color: rgb(29 35 41);
+  letter-spacing: -0.33px;
+  margin: 0;
+}
+
+/* Quote heading (h3) */
+.cards-testimonial h3 {
+  font-size: 26px;
+  font-family: var(--heading-font-family);
+  font-weight: 700;
+  line-height: 29.9px;
+  color: rgb(29 35 41);
+  letter-spacing: -0.78px;
+  margin: 8px 0 0;
+}
+
+/* Description paragraph (third child - after eyebrow and h3) */
+.cards-testimonial .cards-testimonial-card-body > p:nth-child(3) {
+  font-size: 15px;
+  font-family: var(--body-font-family);
+  line-height: 21px;
+  color: rgb(69 75 82);
+  margin: 16px 0 0;
+}
+
+/* Attribution text (em/italic paragraph) */
+.cards-testimonial .cards-testimonial-card-body > p:nth-child(4) {
+  font-size: 12px;
+  font-family: var(--body-font-family);
+  line-height: 14.4px;
+  color: rgb(29 35 41);
+  margin: 16px 0 0;
+}
+
+.cards-testimonial .cards-testimonial-card-body > p:nth-child(4) em {
+  font-style: normal;
+}
+
+/* CTA link/button - last paragraph in card body */
+.cards-testimonial .cards-testimonial-card-body > p:last-child {
+  margin-top: auto;
+  padding-top: 24px;
+}
+
+/* Style the CTA as a pill button (works with or without .button class) */
+.cards-testimonial .cards-testimonial-card-body > p:last-child a:any-link {
+  background-color: rgb(0 56 143);
+  color: rgb(255 255 255);
+  font-size: 14px;
+  font-family: var(--heading-font-family);
+  font-weight: 700;
+  line-height: 14px;
+  padding: 0 32px;
+  border: none;
+  border-radius: 28px;
+  height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.cards-testimonial .cards-testimonial-card-body > p:last-child a:hover {
+  background-color: rgb(0 40 105);
+  color: rgb(255 255 255);
+  text-decoration: none;
+}
+
+/* Responsive: 2 columns on tablet */
+@media (width >= 600px) {
+  .cards-testimonial > ul {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Responsive: 4 columns on desktop */
+@media (width >= 900px) {
+  .cards-testimonial > ul {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }

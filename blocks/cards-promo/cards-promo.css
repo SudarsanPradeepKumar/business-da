@@ -1,5 +1,8 @@
 /* Block: cards-promo -- Promotional deal cards in mixed-size grid layout */
 
+/* Values extracted from source: https://www.business.att.com/ (.flex-cards.aem-GridColumn) */
+
+/* Card list container */
 .cards-promo > ul {
   list-style: none;
   margin: 0;
@@ -9,24 +12,27 @@
   gap: 32px;
 }
 
+/* Individual card */
 .cards-promo > ul > li {
   background-color: rgb(243 244 246);
   border-radius: 16px;
   position: relative;
   overflow: hidden;
-  min-height: 320px;
+  min-height: 400px;
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
 
+/* Dark theme card (card 2) */
 .cards-promo > ul > li:nth-child(2) {
   background-color: rgb(37 48 58);
   color: rgb(255 255 255);
 }
 
+/* Card body (text content area) */
 .cards-promo .cards-promo-card-body {
-  padding: 24px;
+  padding: 32px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -36,47 +42,49 @@
 
 /* Eyebrow text (first p in card body) */
 .cards-promo .cards-promo-card-body > p:first-child {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 400;
-  line-height: 19px;
+  line-height: 21px;
   color: rgb(29 35 41);
   margin: 0;
 }
 
 /* Heading */
 .cards-promo h3 {
-  font-size: 24px;
+  font-size: 34px;
   font-weight: 400;
-  line-height: 1.15;
-  letter-spacing: -0.84px;
+  line-height: 39.1px;
+  letter-spacing: -1.02px;
   color: rgb(29 35 41);
   margin: 0;
 }
 
-/* Description text */
+/* Description text (3rd element in card body) */
 .cards-promo .cards-promo-card-body > p:nth-child(3) {
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 400;
-  line-height: 23.8px;
+  line-height: 25.2px;
   color: rgb(69 75 82);
-  margin: 0;
+  margin: 0 0 8px;
 }
 
-/* Legal/fine print text */
+/* Legal/fine print text (4th element in card body) */
 .cards-promo .cards-promo-card-body > p:nth-child(4) {
   font-size: 12px;
   font-weight: 400;
-  line-height: 16.8px;
+  line-height: 14.4px;
   color: rgb(69 75 82);
-  margin: 0;
+  margin: 0 0 8px;
 }
 
+/* Links within legal text */
 .cards-promo .cards-promo-card-body > p:nth-child(4) a {
   color: inherit;
+  font-size: 12px;
   text-decoration: underline;
 }
 
-/* CTA button container */
+/* CTA button container (last p in card body) */
 .cards-promo .cards-promo-card-body > p:last-child {
   margin: 8px 0 0;
 }
@@ -85,7 +93,8 @@
   margin: 8px 0 0;
 }
 
-/* CTA button */
+/* CTA button - targets both plain links and EDS-decorated button links */
+main .cards-promo .cards-promo-card-body > p:last-child a:any-link,
 main .cards-promo a.button:any-link {
   background-color: rgb(0 56 143);
   color: rgb(242 250 253);
@@ -102,18 +111,19 @@ main .cards-promo a.button:any-link {
   white-space: nowrap;
 }
 
+main .cards-promo .cards-promo-card-body > p:last-child a:any-link:hover,
 main .cards-promo a.button:any-link:hover {
   background-color: rgb(0 40 110);
   color: rgb(242 250 253);
   text-decoration: none;
 }
 
-/* Dark theme card overrides */
+/* Dark theme card text overrides */
 .cards-promo > ul > li:nth-child(2) .cards-promo-card-body > p:first-child {
   color: rgb(255 255 255);
 }
 
-.cards-promo > ul > li:nth-child(2) .cards-promo-card-body h3 {
+.cards-promo > ul > li:nth-child(2) h3 {
   color: rgb(255 255 255);
 }
 
@@ -126,11 +136,13 @@ main .cards-promo a.button:any-link:hover {
 }
 
 /* Dark card inverted CTA */
+main .cards-promo > ul > li:nth-child(2) .cards-promo-card-body > p:last-child a:any-link,
 main .cards-promo > ul > li:nth-child(2) a.button:any-link {
   background-color: rgb(242 250 253);
   color: rgb(0 56 143);
 }
 
+main .cards-promo > ul > li:nth-child(2) .cards-promo-card-body > p:last-child a:any-link:hover,
 main .cards-promo > ul > li:nth-child(2) a.button:any-link:hover {
   background-color: rgb(255 255 255);
   color: rgb(0 40 110);
@@ -158,17 +170,17 @@ main .cards-promo > ul > li:nth-child(2) a.button:any-link:hover {
   }
 
   .cards-promo .cards-promo-card-body {
-    padding: 24px 0 24px 24px;
-    max-width: 55%;
+    padding: 32px 0 32px 32px;
+    max-width: 50%;
+  }
+
+  .cards-promo > ul > li:nth-child(2) .cards-promo-card-body {
+    padding: 32px;
+    max-width: 100%;
   }
 
   .cards-promo > ul > li:nth-child(3) .cards-promo-card-body {
     max-width: 50%;
-    padding: 32px;
-  }
-
-  .cards-promo h3 {
-    font-size: 28px;
-    line-height: 32.2px;
+    padding: 32px 0 32px 32px;
   }
 }

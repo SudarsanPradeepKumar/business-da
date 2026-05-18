@@ -1,4 +1,6 @@
-/* hero-dark block - dark themed hero with background image and content overlay */
+/* hero-dark block - dark themed hero with full-width background image, text left */
+
+/* Extracted values from source: https://www.business.att.com/ (2026-05-18) */
 
 .hero-dark-wrapper {
   max-width: unset !important;
@@ -34,6 +36,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: 50% 50%;
 }
 
 /* Row 2: Content - positioned above the background */
@@ -42,8 +45,6 @@
   z-index: 1;
   display: flex;
   align-items: center;
-  max-width: 960px;
-  margin: 0 auto;
   width: 100%;
   flex: 1;
 }
@@ -53,7 +54,11 @@
   max-width: 100%;
 }
 
-/* Heading */
+/* Heading (h2) */
+
+/* Source: font-size 48px, font-weight 400 (attAleckSans-Bold face), line-height 55.2px, color white */
+
+/* Using font-weight 700 to simulate bold face since we use Helvetica Neue */
 .hero-dark h2 {
   font-size: 32px;
   font-weight: 700;
@@ -63,38 +68,47 @@
   margin: 8px 0 16px;
 }
 
-/* Body paragraph - general rule before specific eyebrow */
+/* Body paragraphs */
+
+/* Source: font-size 18px, line-height 25.2px, color white */
 .hero-dark p {
   font-size: 16px;
   font-family: var(--body-font-family);
+  font-weight: 400;
   line-height: 1.4;
   color: #fff;
   margin: 0 0 16px;
 }
 
-/* Eyebrow text - first paragraph override */
+/* Eyebrow text - first paragraph in content cell */
+
+/* Source: font-size 28px, font-weight 400, line-height 30px, color white, margin-bottom 8px */
 .hero-dark > div:last-child > div > p:first-child {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 400;
-  line-height: 24px;
+  line-height: 1.3;
   color: #fff;
   margin: 0 0 8px;
 }
 
-/* CTA link styled as button */
+/* CTA link styled as pill button */
+
+/* Source: font-size 14px, color rgb(0,56,143), bg rgb(242,250,253), border-radius 28px,
+   padding 0 32px, height 48px, display flex, align-items center, justify-content center */
 .hero-dark a:any-link {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   font-size: 14px;
-  font-weight: 400;
+  font-weight: 700;
   color: #00388f;
-  background-color: var(--accent-color);
-  padding: 12px 32px;
+  background-color: #f2fafd;
+  padding: 0 32px;
   border-radius: 28px;
   border: 0;
   text-decoration: none;
-  min-height: 40px;
+  height: 48px;
+  white-space: nowrap;
   margin-top: 8px;
 }
 
@@ -104,19 +118,20 @@
   text-decoration: none;
 }
 
-/* Button wrapper override - prevent EDS button styling */
-.hero-dark p.button-wrapper {
+/* Button wrapper override - prevent EDS button styling from interfering */
+.hero-dark p.button-container {
   margin: 8px 0 0;
 }
 
 .hero-dark a.button:any-link {
-  background-color: var(--accent-color);
+  background-color: #f2fafd;
   color: #00388f;
-  border-color: var(--accent-color);
-  padding: 12px 32px;
+  border-color: #f2fafd;
+  padding: 0 32px;
   border-radius: 28px;
   font-size: 14px;
-  font-weight: 400;
+  font-weight: 700;
+  height: 48px;
 }
 
 .hero-dark a.button:hover {
@@ -125,24 +140,29 @@
   color: #00388f;
 }
 
+/* Desktop layout */
 @media (width >= 900px) {
   .hero-dark {
-    min-height: 410px;
+    /* Source: height 506px, padding 48px 32px */
+    min-height: 506px;
     padding: 48px 32px;
     flex-direction: row;
     align-items: center;
   }
 
-  /* On desktop, background image fills full width */
+  /* Background image fills full width - already absolute inset 0 */
   .hero-dark > div:first-child {
     position: absolute;
     inset: 0;
   }
 
-  /* Content positioned on the left half */
+  /* Content positioned on the left ~50% */
+
+  /* Source: row is flex, center-aligned; text col flex-basis 50%, max-width 616px */
   .hero-dark > div:last-child {
-    max-width: 1200px;
-    padding: 0 32px;
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 0;
   }
 
   .hero-dark > div:last-child > div {
@@ -150,19 +170,25 @@
   }
 
   /* Heading desktop size */
+
+  /* Source: font-size 48px, font-weight 400 (attAleckSans-Bold face), line-height 55.2px */
   .hero-dark h2 {
     font-size: 48px;
-    line-height: 1.15;
-    font-weight: 400;
+    line-height: 55.2px;
+    font-weight: 700;
   }
 
-  /* Body text */
+  /* Body text desktop */
+
+  /* Source: font-size 18px, line-height 25.2px */
   .hero-dark p {
     font-size: 18px;
     line-height: 25.2px;
   }
 
   /* Eyebrow text desktop */
+
+  /* Source: font-size 28px, line-height 30px */
   .hero-dark > div:last-child > div > p:first-child {
     font-size: 28px;
     line-height: 30px;
