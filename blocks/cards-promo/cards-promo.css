@@ -39,7 +39,26 @@
   color: rgb(255 255 255);
 }
 
-/* Card body (text content area) */
+/* Card image (absolute background behind content) */
+.cards-promo .cards-promo-card-image {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.cards-promo .cards-promo-card-image picture {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+.cards-promo .cards-promo-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Card body (text content area, overlays image) */
 .cards-promo .cards-promo-card-body {
   padding: 32px;
   display: flex;
