@@ -14,6 +14,7 @@
 .hero-homepage {
   position: relative;
   overflow: hidden;
+  border-radius: 1.6rem;
 }
 
 /* Row 1 = image (absolute background on desktop) */
