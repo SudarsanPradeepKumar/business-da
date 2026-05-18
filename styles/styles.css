@@ -304,6 +304,11 @@ main > .section:first-of-type {
   }
 }
 
+/* center-aligned default content headings within block sections */
+main > .section > .default-content-wrapper:has(h2:first-child) {
+  text-align: center;
+}
+
 /* section metadata */
 main .section.light,
 main .section.highlight {
