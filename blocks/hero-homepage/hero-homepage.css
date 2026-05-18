@@ -74,28 +74,20 @@
 .hero-homepage img {
   width: 100%;
   height: auto;
-  object-fit: cover;
-  object-position: left center;
   display: block;
 }
 
-/* Desktop: image becomes full-width absolute background, content overlays left */
+/* Desktop: image as full-width background, content overlays on the left */
 @media (width >= 900px) {
-  .hero-homepage {
-    min-height: 500px;
-  }
-
   /* Content panel: overlays on top left */
   .hero-homepage > div:last-child {
     position: relative;
     z-index: 1;
     order: unset;
-    max-width: 50%;
+    max-width: 40%;
     padding: 64px 32px;
-    align-self: center;
   }
 
-  /* Image panel: absolute, covers entire block */
   .hero-homepage > div:first-child {
     position: absolute;
     inset: 0;
@@ -134,7 +126,6 @@
     height: 100%;
     width: 100%;
     object-fit: cover;
-    object-position: left center;
   }
 }
 
