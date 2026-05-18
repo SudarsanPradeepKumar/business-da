@@ -2,6 +2,15 @@
 
 /* Values extracted from source: https://www.business.att.com/ (.flex-cards.aem-GridColumn) */
 
+.cards-promo-wrapper {
+  max-width: 1440px !important;
+  padding-top: 48px;
+}
+
+.cards-promo {
+  padding-top: 32px;
+}
+
 /* Card list container */
 .cards-promo > ul {
   list-style: none;
