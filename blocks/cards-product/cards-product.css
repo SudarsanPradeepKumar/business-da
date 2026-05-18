@@ -3,7 +3,7 @@
 
 /* Block-level wrapper override for wider max-width */
 .cards-product-wrapper {
-  max-width: 1600px !important;
+  max-width: 1440px !important;
 }
 
 /* Top spacing */
@@ -18,7 +18,7 @@
   padding: 0;
   display: grid;
   grid-template-columns: 1fr;
-  gap: 16px;
+  gap: 32px;
 }
 
 /* Card item */
@@ -160,7 +160,7 @@
 @media (width >= 600px) {
   .cards-product > ul {
     grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
+    gap: 32px;
   }
 }
 
@@ -168,7 +168,7 @@
 @media (width >= 900px) {
   .cards-product > ul {
     grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
+    gap: 32px;
   }
 
   .cards-product .cards-product-card-body h3 {
