@@ -11,4 +11,14 @@ export default function decorate(block) {
   block.innerHTML = '';
   if (textCol) block.append(textCol);
   if (imageCol) block.append(imageCol);
+
+  if (textCol) {
+    const paragraphs = textCol.querySelectorAll('p');
+    paragraphs.forEach((p) => {
+      const link = p.querySelector('a');
+      if (link && p.textContent.trim() === link.textContent.trim()) {
+        link.classList.add('cta');
+      }
+    });
+  }
 }
