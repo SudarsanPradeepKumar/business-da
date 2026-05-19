@@ -5,6 +5,7 @@
 main > .section > .carousel-industry-wrapper {
   max-width: 1440px;
   margin: 0 auto;
+  padding: 0 24px;
 }
 
 .carousel-industry-container {
