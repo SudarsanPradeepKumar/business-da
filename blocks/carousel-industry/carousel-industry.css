@@ -128,15 +128,14 @@ main > .section > .carousel-industry-wrapper {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 48px;
-    align-items: start;
+    align-items: stretch;
     max-width: 1440px;
     margin: 0 auto;
   }
 
   .carousel-industry-image-panel {
-    aspect-ratio: 3 / 4;
-    position: sticky;
-    top: 120px;
+    aspect-ratio: unset;
+    height: 100%;
   }
 
   .carousel-industry-item-content h3 {
