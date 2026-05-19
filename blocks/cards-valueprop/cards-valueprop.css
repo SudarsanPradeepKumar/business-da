@@ -5,7 +5,7 @@
  *   link 15px bold blue, item flex 0 0 22%, row-gap 16px between elements
  */
 
-.cards-valueprop-wrapper {
+main > .section > .cards-valueprop-wrapper {
   max-width: 1440px;
   margin: 0 auto;
 }
