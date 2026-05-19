@@ -1,6 +1,8 @@
 main > .section > .feature-highlight-wrapper {
   max-width: 1440px;
   margin: 0 auto;
+  background-color: var(--light-color);
+  padding: 48px 0;
 }
 
 .feature-highlight {
