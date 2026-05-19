@@ -5,6 +5,16 @@
  *   link 15px bold blue, item flex 0 0 22%, row-gap 16px between elements
  */
 
+.cards-valueprop-wrapper {
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+/* Block-level spacing to match original section padding */
+.cards-valueprop {
+  padding: 48px 0 32px;
+}
+
 /* Grid layout - mobile first (1 column) */
 .cards-valueprop > ul {
   list-style: none;
@@ -13,7 +23,7 @@
   display: flex;
   flex-direction: column;
   gap: 32px;
-  align-items: center;
+  align-items: stretch;
 }
 
 /* Individual card item */
@@ -57,6 +67,7 @@
   align-items: center;
   text-align: center;
   gap: 16px;
+  flex: 1;
 }
 
 /* h4 heading */
@@ -77,6 +88,11 @@
   line-height: 21px;
   color: rgb(69 75 82);
   margin: 0;
+}
+
+/* Push the link to the bottom of the card */
+.cards-valueprop .cards-valueprop-card-body p:last-child {
+  margin-top: auto;
 }
 
 /* Learn more link - reset EDS button styles if applied */
