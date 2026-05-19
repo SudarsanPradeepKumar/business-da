@@ -27,7 +27,7 @@ export default async function decorate(block) {
   const rows = [...block.querySelectorAll(':scope > div')];
 
   const container = document.createElement('div');
-  container.classList.add('carousel-industry-container');
+  container.classList.add('carousel-industry-layout');
 
   const imagePanel = document.createElement('div');
   imagePanel.classList.add('carousel-industry-image-panel');

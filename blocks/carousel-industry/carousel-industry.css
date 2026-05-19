@@ -2,16 +2,23 @@
    Two-column layout: large image left, vertical list right
    On hover, image changes to match the hovered item */
 
+main > .section.carousel-industry-container {
+  padding: 0;
+}
+
 main > .section > .carousel-industry-wrapper {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 32px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.carousel-industry-container {
+.carousel-industry-layout {
   display: flex;
   flex-direction: column;
   gap: 32px;
+  width: 100%;
 }
 
 .carousel-industry-image-panel {
@@ -117,11 +124,13 @@ main > .section > .carousel-industry-wrapper {
 }
 
 @media (width >= 900px) {
-  .carousel-industry-container {
+  .carousel-industry-layout {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 48px;
     align-items: start;
+    max-width: 1440px;
+    margin: 0 auto;
   }
 
   .carousel-industry-image-panel {
