@@ -2,9 +2,17 @@
 
 /* Extracted values from source: https://www.business.att.com/ (2026-05-18) */
 
+main > .section.hero-dark-container {
+  margin-top: 0 !important;
+  padding-left: 32px;
+  padding-right: 32px;
+}
+
 .hero-dark-wrapper {
   max-width: unset !important;
   padding: 0 !important;
+  border-radius: 1.6rem;
+  overflow: hidden;
 }
 
 .hero-dark {
