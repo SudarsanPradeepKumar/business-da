@@ -341,7 +341,8 @@ main .section.dark a:any-link {
 
 main .section.accent {
   background-color: var(--accent-color);
-  margin: 0;
+  margin: 32px;
   padding: 32px 0;
   text-align: center;
+  border-radius: 1.6rem;
 }
