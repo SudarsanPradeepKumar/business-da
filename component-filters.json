@@ -1,0 +1,83 @@
+[
+  {
+    "id": "main",
+    "components": [
+      "section"
+    ]
+  },
+  {
+    "id": "section",
+    "components": [
+      "text",
+      "image",
+      "hero-homepage",
+      "hero-dark",
+      "cards-product",
+      "cards-promo",
+      "cards-valueprop",
+      "cards-testimonial",
+      "feature-highlight",
+      "carousel-industry"
+    ]
+  },
+  {
+    "id": "cards-product",
+    "components": [
+      "cards-product-item"
+    ]
+  },
+  {
+    "id": "cards-promo",
+    "components": [
+      "cards-promo-item"
+    ]
+  },
+  {
+    "id": "cards-testimonial",
+    "components": [
+      "cards-testimonial-item"
+    ]
+  },
+  {
+    "id": "cards-valueprop",
+    "components": [
+      "cards-valueprop-item"
+    ]
+  },
+  {
+    "id": "carousel-industry",
+    "components": [
+      "carousel-industry-item"
+    ]
+  },
+  {
+    "id": "form",
+    "components": [
+      "captcha",
+      "checkbox",
+      "checkbox-group",
+      "date-input",
+      "drop-down",
+      "email",
+      "file-input",
+      "form-accordion",
+      "form-button",
+      "form-fragment",
+      "form-image",
+      "form-modal",
+      "form-reset-button",
+      "form-submit-button",
+      "number-input",
+      "panel",
+      "password",
+      "plain-text",
+      "radio-group",
+      "rating",
+      "telephone-input",
+      "text-input",
+      "tnc",
+      "wizard",
+      "range"
+    ]
+  }
+]

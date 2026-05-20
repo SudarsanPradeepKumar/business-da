@@ -1,0 +1,127 @@
+{
+  "definitions": [
+    {
+      "title": "Cards Value Prop",
+      "id": "cards-valueprop",
+      "filter": "cards-valueprop",
+      "plugins": {
+        "da": {
+          "name": "cards-valueprop",
+          "rows": 1,
+          "columns": 2
+        }
+      }
+    },
+    {
+      "title": "Value Prop Card",
+      "id": "cards-valueprop-item",
+      "model": "cards-valueprop-item",
+      "plugins": {
+        "da": {
+          "name": "cards-valueprop-item",
+          "rows": 1,
+          "columns": 2,
+          "fields": [
+            {
+              "name": "image",
+              "selector": "div:nth-child(1) picture img[src]"
+            },
+            {
+              "name": "imageAlt",
+              "selector": "div:nth-child(1) picture img[alt]"
+            },
+            {
+              "name": "heading",
+              "selector": "div:nth-child(2) h4"
+            },
+            {
+              "name": "description",
+              "selector": "div:nth-child(2) > p:nth-of-type(1)"
+            },
+            {
+              "name": "link",
+              "selector": "div:nth-child(2) a"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "cards-valueprop-item",
+      "fields": [
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "image",
+          "label": "Icon",
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "imageAlt",
+          "label": "Alt",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "heading",
+          "label": "Heading",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "headingType",
+          "label": "Heading Type",
+          "value": "h4",
+          "options": [
+            {
+              "name": "H3",
+              "value": "h3"
+            },
+            {
+              "name": "H4",
+              "value": "h4"
+            },
+            {
+              "name": "H5",
+              "value": "h5"
+            }
+          ]
+        },
+        {
+          "component": "richtext",
+          "name": "description",
+          "value": "",
+          "label": "Description",
+          "valueType": "string"
+        },
+        {
+          "component": "aem-content",
+          "name": "link",
+          "label": "Link",
+          "valueType": "string"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "linkText",
+          "label": "Link Label",
+          "value": ""
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "id": "cards-valueprop",
+      "components": [
+        "cards-valueprop-item"
+      ]
+    }
+  ]
+}

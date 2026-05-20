@@ -1,0 +1,137 @@
+{
+  "definitions": [
+    {
+      "title": "Feature Highlight",
+      "id": "feature-highlight",
+      "model": "feature-highlight",
+      "plugins": {
+        "da": {
+          "name": "feature-highlight",
+          "rows": 2,
+          "columns": 1,
+          "fields": [
+            {
+              "name": "eyebrow",
+              "selector": "div:nth-child(1) > div > p:nth-of-type(1)"
+            },
+            {
+              "name": "heading",
+              "selector": "div:nth-child(1) h2"
+            },
+            {
+              "name": "description",
+              "selector": "div:nth-child(1) > div > p:nth-of-type(2)"
+            },
+            {
+              "name": "features",
+              "selector": "div:nth-child(1) ul"
+            },
+            {
+              "name": "link",
+              "selector": "div:nth-child(1) > div > p:nth-of-type(3) a"
+            },
+            {
+              "name": "footnote",
+              "selector": "div:nth-child(1) > div > p:last-of-type"
+            },
+            {
+              "name": "image",
+              "selector": "div:nth-child(2) picture img[src]"
+            },
+            {
+              "name": "imageAlt",
+              "selector": "div:nth-child(2) picture img[alt]"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "feature-highlight",
+      "fields": [
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "eyebrow",
+          "label": "Eyebrow",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "heading",
+          "label": "Heading",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "headingType",
+          "label": "Heading Type",
+          "value": "h2",
+          "options": [
+            {
+              "name": "H2",
+              "value": "h2"
+            },
+            {
+              "name": "H3",
+              "value": "h3"
+            }
+          ]
+        },
+        {
+          "component": "richtext",
+          "name": "description",
+          "value": "",
+          "label": "Description",
+          "valueType": "string"
+        },
+        {
+          "component": "richtext",
+          "name": "features",
+          "value": "",
+          "label": "Feature List",
+          "valueType": "string"
+        },
+        {
+          "component": "aem-content",
+          "name": "link",
+          "label": "CTA Link",
+          "valueType": "string"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "linkText",
+          "label": "CTA Label",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "footnote",
+          "label": "Footnote",
+          "value": ""
+        },
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "image",
+          "label": "Image",
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "imageAlt",
+          "label": "Alt",
+          "value": ""
+        }
+      ]
+    }
+  ],
+  "filters": []
+}

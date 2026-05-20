@@ -1,0 +1,102 @@
+{
+  "definitions": [
+    {
+      "title": "Hero Homepage",
+      "id": "hero-homepage",
+      "model": "hero-homepage",
+      "plugins": {
+        "da": {
+          "name": "hero-homepage",
+          "rows": 2,
+          "columns": 3,
+          "fields": [
+            {
+              "name": "image",
+              "selector": "div:nth-child(1) > div:nth-child(1) picture img[src]"
+            },
+            {
+              "name": "imageAlt",
+              "selector": "div:nth-child(1) > div:nth-child(1) picture img[alt]"
+            },
+            {
+              "name": "eyebrow",
+              "selector": "div:nth-child(2) > div:nth-child(1) p"
+            },
+            {
+              "name": "heading",
+              "selector": "div:nth-child(2) > div:nth-child(2) h1"
+            },
+            {
+              "name": "description",
+              "selector": "div:nth-child(2) > div:nth-child(3) p"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "hero-homepage",
+      "fields": [
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "image",
+          "label": "Image",
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "imageAlt",
+          "label": "Alt",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "eyebrow",
+          "label": "Eyebrow",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "heading",
+          "label": "Heading",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "headingType",
+          "label": "Heading Type",
+          "value": "h1",
+          "options": [
+            {
+              "name": "H1",
+              "value": "h1"
+            },
+            {
+              "name": "H2",
+              "value": "h2"
+            },
+            {
+              "name": "H3",
+              "value": "h3"
+            }
+          ]
+        },
+        {
+          "component": "richtext",
+          "name": "description",
+          "value": "",
+          "label": "Description",
+          "valueType": "string"
+        }
+      ]
+    }
+  ],
+  "filters": []
+}

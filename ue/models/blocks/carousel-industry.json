@@ -1,0 +1,110 @@
+{
+  "definitions": [
+    {
+      "title": "Carousel Industry",
+      "id": "carousel-industry",
+      "filter": "carousel-industry",
+      "plugins": {
+        "da": {
+          "name": "carousel-industry",
+          "rows": 1,
+          "columns": 2
+        }
+      }
+    },
+    {
+      "title": "Industry Slide",
+      "id": "carousel-industry-item",
+      "model": "carousel-industry-item",
+      "plugins": {
+        "da": {
+          "name": "carousel-industry-item",
+          "rows": 1,
+          "columns": 2,
+          "fields": [
+            {
+              "name": "image",
+              "selector": "div:nth-child(1) picture img[src]"
+            },
+            {
+              "name": "imageAlt",
+              "selector": "div:nth-child(1) picture img[alt]"
+            },
+            {
+              "name": "heading",
+              "selector": "div:nth-child(2) h3"
+            },
+            {
+              "name": "description",
+              "selector": "div:nth-child(2) > p:nth-of-type(1)"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "carousel-industry-item",
+      "fields": [
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "image",
+          "label": "Image",
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "imageAlt",
+          "label": "Alt",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "heading",
+          "label": "Heading",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "headingType",
+          "label": "Heading Type",
+          "value": "h3",
+          "options": [
+            {
+              "name": "H2",
+              "value": "h2"
+            },
+            {
+              "name": "H3",
+              "value": "h3"
+            },
+            {
+              "name": "H4",
+              "value": "h4"
+            }
+          ]
+        },
+        {
+          "component": "richtext",
+          "name": "description",
+          "value": "",
+          "label": "Description",
+          "valueType": "string"
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "id": "carousel-industry",
+      "components": [
+        "carousel-industry-item"
+      ]
+    }
+  ]
+}

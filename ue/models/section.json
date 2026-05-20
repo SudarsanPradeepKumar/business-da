@@ -1,0 +1,50 @@
+{
+  "definitions": [
+    {
+      "title": "Section",
+      "id": "section",
+      "filter": "section",
+      "model": "section",
+      "plugins": {
+        "da": {
+          "unsafeHTML": "<div></div>"
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "section",
+      "fields": [
+        {
+          "component": "multiselect",
+          "name": "style",
+          "label": "Style",
+          "options": [
+            {
+              "name": "Highlight",
+              "value": "highlight"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "id": "section",
+      "components": [
+        "text",
+        "image",
+        "hero-homepage",
+        "hero-dark",
+        "cards-product",
+        "cards-promo",
+        "cards-valueprop",
+        "cards-testimonial",
+        "feature-highlight",
+        "carousel-industry"
+      ]
+    }
+  ]
+}

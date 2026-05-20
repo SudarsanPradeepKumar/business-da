@@ -1,0 +1,174 @@
+{
+  "definitions": [
+    {
+      "title": "Hero Dark",
+      "id": "hero-dark",
+      "model": "hero-dark",
+      "plugins": {
+        "da": {
+          "name": "hero-dark",
+          "rows": 2,
+          "columns": 1,
+          "fields": [
+            {
+              "name": "image",
+              "selector": "div:nth-child(1) picture img[src]"
+            },
+            {
+              "name": "imageAlt",
+              "selector": "div:nth-child(1) picture img[alt]"
+            },
+            {
+              "name": "eyebrow",
+              "selector": "div:nth-child(2) > div > p:nth-of-type(1)"
+            },
+            {
+              "name": "heading",
+              "selector": "div:nth-child(2) h2"
+            },
+            {
+              "name": "description",
+              "selector": "div:nth-child(2) > div > p:nth-of-type(2)"
+            },
+            {
+              "name": "link",
+              "selector": "div:nth-child(2) > div > a:nth-of-type(1)"
+            },
+            {
+              "name": "link2",
+              "selector": "div:nth-child(2) > div > a:nth-of-type(2)"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "models": [
+    {
+      "id": "hero-dark",
+      "fields": [
+        {
+          "component": "reference",
+          "valueType": "string",
+          "name": "image",
+          "label": "Background Image",
+          "multi": false
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "imageAlt",
+          "label": "Alt",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "eyebrow",
+          "label": "Eyebrow",
+          "value": ""
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "heading",
+          "label": "Heading",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "headingType",
+          "label": "Heading Type",
+          "value": "h2",
+          "options": [
+            {
+              "name": "H2",
+              "value": "h2"
+            },
+            {
+              "name": "H3",
+              "value": "h3"
+            }
+          ]
+        },
+        {
+          "component": "richtext",
+          "name": "description",
+          "value": "",
+          "label": "Description",
+          "valueType": "string"
+        },
+        {
+          "component": "aem-content",
+          "name": "link",
+          "label": "Primary CTA Link",
+          "valueType": "string"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "linkText",
+          "label": "Primary CTA Label",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "linkType",
+          "label": "Primary CTA Type",
+          "value": "",
+          "options": [
+            {
+              "name": "Default",
+              "value": ""
+            },
+            {
+              "name": "Primary",
+              "value": "primary"
+            },
+            {
+              "name": "Secondary",
+              "value": "secondary"
+            }
+          ]
+        },
+        {
+          "component": "aem-content",
+          "name": "link2",
+          "label": "Secondary CTA Link",
+          "valueType": "string"
+        },
+        {
+          "component": "text",
+          "valueType": "string",
+          "name": "link2Text",
+          "label": "Secondary CTA Label",
+          "value": ""
+        },
+        {
+          "component": "select",
+          "valueType": "string",
+          "name": "link2Type",
+          "label": "Secondary CTA Type",
+          "value": "",
+          "options": [
+            {
+              "name": "Default",
+              "value": ""
+            },
+            {
+              "name": "Primary",
+              "value": "primary"
+            },
+            {
+              "name": "Secondary",
+              "value": "secondary"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "filters": []
+}
