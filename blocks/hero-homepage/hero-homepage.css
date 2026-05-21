@@ -25,28 +25,27 @@
 /* Row 2 = text content */
 .hero-homepage > div:last-child {
   order: 2;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
   padding: 32px 24px;
 }
 
+.hero-homepage > div:last-child > div {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
 /* Eyebrow */
-.hero-homepage > div:last-child > div:first-child {
+.hero-homepage > div:last-child > div > p:first-child {
   font-size: 20px;
   font-weight: 400;
   font-family: var(--body-font-family);
   line-height: 1.4;
   color: #1d2329;
-  margin-bottom: 8px;
-}
-
-.hero-homepage > div:last-child > div:first-child p {
-  margin: 0;
+  margin: 0 0 8px;
 }
 
 /* H1 heading */
-.hero-homepage > div:last-child > div:nth-child(2) h1 {
+.hero-homepage > div:last-child > div h1 {
   font-size: 36px;
   font-weight: 700;
   font-family: var(--heading-font-family);
@@ -57,14 +56,11 @@
 }
 
 /* Body text */
-.hero-homepage > div:last-child > div:nth-child(3) {
+.hero-homepage > div:last-child > div > p:last-child {
   font-size: 16px;
   font-family: var(--body-font-family);
   line-height: 1.4;
   color: #454b52;
-}
-
-.hero-homepage > div:last-child > div:nth-child(3) p {
   margin: 0;
 }
 
@@ -102,20 +98,20 @@
   }
 
   /* Eyebrow desktop */
-  .hero-homepage > div:last-child > div:first-child {
+  .hero-homepage > div:last-child > div > p:first-child {
     font-size: 26px;
     line-height: 28px;
   }
 
   /* H1 desktop */
-  .hero-homepage > div:last-child > div:nth-child(2) h1 {
+  .hero-homepage > div:last-child > div h1 {
     font-size: 48px;
     line-height: 55.2px;
     letter-spacing: -1.44px;
   }
 
   /* Body desktop */
-  .hero-homepage > div:last-child > div:nth-child(3) {
+  .hero-homepage > div:last-child > div > p:last-child {
     font-size: 18px;
     line-height: 25.2px;
   }

@@ -405,27 +405,27 @@
             "da": {
               "name": "hero-homepage",
               "rows": 2,
-              "columns": 3,
+              "columns": 1,
               "fields": [
                 {
                   "name": "image",
-                  "selector": "div:nth-child(1) > div:nth-child(1) picture img[src]"
+                  "selector": "div:nth-child(1) picture img[src]"
                 },
                 {
                   "name": "imageAlt",
-                  "selector": "div:nth-child(1) > div:nth-child(1) picture img[alt]"
+                  "selector": "div:nth-child(1) picture img[alt]"
                 },
                 {
                   "name": "eyebrow",
-                  "selector": "div:nth-child(2) > div:nth-child(1) p"
+                  "selector": "div:nth-child(2) > div > p:first-of-type"
                 },
                 {
                   "name": "heading",
-                  "selector": "div:nth-child(2) > div:nth-child(2) h1"
+                  "selector": "div:nth-child(2) h1"
                 },
                 {
                   "name": "description",
-                  "selector": "div:nth-child(2) > div:nth-child(3) p"
+                  "selector": "div:nth-child(2) > div > p:last-of-type"
                 }
               ]
             }
