@@ -9,23 +9,23 @@
         "da": {
           "name": "hero-homepage",
           "rows": 1,
-          "columns": 2,
+          "columns": 1,
           "fields": [
             {
               "name": "image",
-              "selector": "div:nth-child(1)"
+              "selector": "div > div > picture > img[src]"
             },
             {
               "name": "eyebrow",
-              "selector": "div:nth-child(2) > p:nth-of-type(1)"
+              "selector": "div > div > p:nth-of-type(1)"
             },
             {
               "name": "heading",
-              "selector": "div:nth-child(2) > p:nth-of-type(2)"
+              "selector": "div > div > p:nth-of-type(2)"
             },
             {
               "name": "description",
-              "selector": "div:nth-child(2) > p:nth-of-type(3)"
+              "selector": "div > div > p:nth-of-type(3)"
             }
           ]
         }
