@@ -9,23 +9,15 @@
         "da": {
           "name": "hero-homepage",
           "rows": 1,
-          "columns": 1,
+          "columns": 2,
           "fields": [
             {
               "name": "image",
-              "selector": "div > div > picture > img[src]"
+              "selector": "div:nth-child(1)"
             },
             {
-              "name": "eyebrow",
-              "selector": "div > div > p:nth-of-type(1)"
-            },
-            {
-              "name": "heading",
-              "selector": "div > div > p:nth-of-type(2)"
-            },
-            {
-              "name": "description",
-              "selector": "div > div > p:nth-of-type(3)"
+              "name": "text",
+              "selector": "div:nth-child(2)"
             }
           ]
         }
@@ -44,24 +36,10 @@
           "multi": false
         },
         {
-          "component": "text",
+          "component": "richtext",
           "valueType": "string",
-          "name": "eyebrow",
-          "label": "Eyebrow",
-          "value": ""
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "heading",
-          "label": "Heading",
-          "value": ""
-        },
-        {
-          "component": "text",
-          "valueType": "string",
-          "name": "description",
-          "label": "Description",
+          "name": "text",
+          "label": "Content",
           "value": ""
         }
       ]
