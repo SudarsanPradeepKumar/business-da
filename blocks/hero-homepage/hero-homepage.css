@@ -17,25 +17,28 @@
   border-radius: 1.6rem;
 }
 
-/* Row 1 = image (absolute background on desktop) */
-.hero-homepage > div:first-child {
+/* Single row container */
+.hero-homepage > div {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Cell 1 = image */
+.hero-homepage > div > div:first-child {
   order: 1;
 }
 
-/* Row 2 = text content */
-.hero-homepage > div:last-child {
+/* Cell 2 = text content */
+.hero-homepage > div > div:nth-child(2) {
   order: 2;
-  padding: 32px 24px;
-}
-
-.hero-homepage > div:last-child > div {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  padding: 32px 24px;
 }
 
 /* Eyebrow */
-.hero-homepage > div:last-child > div > p:first-child {
+.hero-homepage > div > div:nth-child(2) > p:first-child {
   font-size: 20px;
   font-weight: 400;
   font-family: var(--body-font-family);
@@ -45,7 +48,7 @@
 }
 
 /* H1 heading */
-.hero-homepage > div:last-child > div h1 {
+.hero-homepage > div > div:nth-child(2) h1 {
   font-size: 36px;
   font-weight: 700;
   font-family: var(--heading-font-family);
@@ -56,7 +59,7 @@
 }
 
 /* Body text */
-.hero-homepage > div:last-child > div > p:last-child {
+.hero-homepage > div > div:nth-child(2) > p:last-child {
   font-size: 16px;
   font-family: var(--body-font-family);
   line-height: 1.4;
@@ -78,8 +81,27 @@
 
 /* Desktop: image as full-width background, content overlays on the left */
 @media (width >= 900px) {
-  /* Content panel: overlays on top left */
-  .hero-homepage > div:last-child {
+  .hero-homepage > div {
+    position: relative;
+    flex-direction: row;
+  }
+
+  /* Cell 1: image as absolute background */
+  .hero-homepage > div > div:first-child {
+    position: absolute;
+    inset: 0;
+    order: unset;
+  }
+
+  .hero-homepage > div > div:first-child picture,
+  .hero-homepage > div > div:first-child img {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+  }
+
+  /* Cell 2: text overlays on top left */
+  .hero-homepage > div > div:nth-child(2) {
     position: relative;
     z-index: 1;
     order: unset;
@@ -87,49 +109,28 @@
     padding: 64px 32px 64px 58px;
   }
 
-  .hero-homepage > div:first-child {
-    position: absolute;
-    inset: 0;
-    order: unset;
-  }
-
-  .hero-homepage > div:first-child > div {
-    height: 100%;
-  }
-
   /* Eyebrow desktop */
-  .hero-homepage > div:last-child > div > p:first-child {
+  .hero-homepage > div > div:nth-child(2) > p:first-child {
     font-size: 26px;
     line-height: 28px;
   }
 
   /* H1 desktop */
-  .hero-homepage > div:last-child > div h1 {
+  .hero-homepage > div > div:nth-child(2) h1 {
     font-size: 48px;
     line-height: 55.2px;
     letter-spacing: -1.44px;
   }
 
   /* Body desktop */
-  .hero-homepage > div:last-child > div > p:last-child {
+  .hero-homepage > div > div:nth-child(2) > p:last-child {
     font-size: 18px;
     line-height: 25.2px;
-  }
-
-  .hero-homepage picture {
-    height: 100%;
-    width: 100%;
-  }
-
-  .hero-homepage img {
-    height: 100%;
-    width: 100%;
-    object-fit: cover;
   }
 }
 
 @media (width >= 1200px) {
-  .hero-homepage > div:last-child {
+  .hero-homepage > div > div:nth-child(2) {
     padding: 64px 32px 64px 80px;
   }
 }

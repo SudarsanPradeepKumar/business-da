@@ -8,8 +8,8 @@
       "plugins": {
         "da": {
           "name": "hero-homepage",
-          "rows": 2,
-          "columns": 1,
+          "rows": 1,
+          "columns": 2,
           "fields": [
             {
               "name": "image",
@@ -21,7 +21,7 @@
             },
             {
               "name": "eyebrow",
-              "selector": "div:nth-child(2) > div > p:first-of-type"
+              "selector": "div:nth-child(2) > p:nth-of-type(1)"
             },
             {
               "name": "heading",
@@ -29,7 +29,7 @@
             },
             {
               "name": "description",
-              "selector": "div:nth-child(2) > div > p:last-of-type"
+              "selector": "div:nth-child(2) > p:nth-of-type(2)"
             }
           ]
         }
