@@ -409,11 +409,7 @@
               "fields": [
                 {
                   "name": "image",
-                  "selector": "div:nth-child(1) picture img[src]"
-                },
-                {
-                  "name": "imageAlt",
-                  "selector": "div:nth-child(1) picture img[alt]"
+                  "selector": "div:nth-child(1)"
                 },
                 {
                   "name": "eyebrow",
@@ -421,11 +417,11 @@
                 },
                 {
                   "name": "heading",
-                  "selector": "div:nth-child(2) h1"
+                  "selector": "div:nth-child(2) > p:nth-of-type(2)"
                 },
                 {
                   "name": "description",
-                  "selector": "div:nth-child(2) > p:nth-of-type(2)"
+                  "selector": "div:nth-child(2) > p:nth-of-type(3)"
                 }
               ]
             }
