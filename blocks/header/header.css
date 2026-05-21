@@ -350,20 +350,11 @@ header nav .nav-sections .nav-mobile-submenu ul li ul li a {
 
 /* Mega Menu Container */
 header nav .nav-sections .nav-mega-container {
-  position: absolute;
-  top: 100%;
+  position: fixed;
+  top: 111px;
   left: 0;
   right: 0;
   z-index: 100;
-}
-
-@media (width >= 900px) {
-  header nav .nav-sections .nav-mega-container {
-    position: fixed;
-    top: auto;
-    left: 0;
-    right: 0;
-  }
 }
 
 /* Mega Menu Panel */
