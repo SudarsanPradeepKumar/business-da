@@ -400,6 +400,7 @@
           "title": "Hero Homepage",
           "id": "hero-homepage",
           "model": "hero-homepage",
+          "group": "hero",
           "plugins": {
             "da": {
               "name": "hero-homepage",

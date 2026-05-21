@@ -644,7 +644,7 @@
         "component": "text",
         "valueType": "string",
         "name": "imageAlt",
-        "label": "Alt",
+        "label": "Image Alt Text",
         "value": ""
       },
       {
@@ -662,32 +662,11 @@
         "value": ""
       },
       {
-        "component": "select",
+        "component": "text",
         "valueType": "string",
-        "name": "headingType",
-        "label": "Heading Type",
-        "value": "h1",
-        "options": [
-          {
-            "name": "H1",
-            "value": "h1"
-          },
-          {
-            "name": "H2",
-            "value": "h2"
-          },
-          {
-            "name": "H3",
-            "value": "h3"
-          }
-        ]
-      },
-      {
-        "component": "richtext",
         "name": "description",
-        "value": "",
         "label": "Description",
-        "valueType": "string"
+        "value": ""
       }
     ]
   },
