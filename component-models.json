@@ -632,7 +632,22 @@
   },
   {
     "id": "hero-homepage",
-    "fields": []
+    "fields": [
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "image",
+        "label": "Image",
+        "multi": false
+      },
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "text",
+        "label": "Content",
+        "value": "<p>Eyebrow</p><h1>Heading goes here</h1><p>Description text goes here</p>"
+      }
+    ]
   },
   {
     "id": "form",

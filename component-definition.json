@@ -403,7 +403,19 @@
           "group": "hero",
           "plugins": {
             "da": {
-              "unsafeHTML": "<table><tr><th colspan='2'>hero-homepage</th></tr><tr><td><picture><img src='/icons/placeholder.svg' alt='Hero image'></picture></td><td><p>Eyebrow</p><h1>Heading goes here</h1><p>Description text goes here</p></td></tr></table>"
+              "name": "hero-homepage",
+              "rows": 1,
+              "columns": 2,
+              "fields": [
+                {
+                  "name": "image",
+                  "selector": "div:nth-child(1)"
+                },
+                {
+                  "name": "text",
+                  "selector": "div:nth-child(2)"
+                }
+              ]
             }
           }
         },
