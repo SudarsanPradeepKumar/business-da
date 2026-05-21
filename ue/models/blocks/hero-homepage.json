@@ -10,7 +10,6 @@
           "name": "hero-homepage",
           "rows": 1,
           "columns": 2,
-          "unsafeHTML": "<div><div><picture><img src='' alt=''></picture></div><div><p></p><h1></h1><p></p></div></div>",
           "fields": [
             {
               "name": "image",

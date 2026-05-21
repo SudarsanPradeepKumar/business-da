@@ -48,8 +48,14 @@ async function loadFonts() {
  * Builds all synthetic blocks in a container element.
  * @param {Element} main The container element
  */
+function isUniversalEditor() {
+  return /\.(stage-ue|ue)\.da\.live$/.test(window.location.hostname);
+}
+
 function buildAutoBlocks(main) {
   try {
+    if (isUniversalEditor()) return;
+
     // auto load `*/fragments/*` references
     const fragments = [...main.querySelectorAll('a[href*="/fragments/"]')].filter((f) => !f.closest('.fragment'));
     if (fragments.length > 0) {
@@ -185,6 +191,10 @@ async function loadPage() {
   await loadEager(document);
   await loadLazy(document);
   loadDelayed();
+
+  if (/\.(stage-ue|ue)\.da\.live$/.test(window.location.hostname)) {
+    await import(`${window.hlx.codeBasePath}/ue/scripts/ue.js`);
+  }
 }
 
 loadPage();
