@@ -215,7 +215,7 @@ export default async function decorate(block) {
     megaMenuContainer.className = 'nav-mega-container';
 
     topLevelItems.forEach((item, index) => {
-      const strong = item.querySelector(':scope > strong');
+      const strong = item.querySelector(':scope > strong') || item.querySelector(':scope > p > strong');
       const subList = item.querySelector(':scope > ul');
 
       if (strong && subList) {
