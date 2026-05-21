@@ -1,6 +1,22 @@
-// eslint-disable-next-line no-unused-vars
 export default function decorate(block) {
-  // hero-homepage is a purely visual block
-  // Structure: row > cell1 (image) + cell2 (text content)
-  // CSS handles the split layout
+  const row = block.querySelector(':scope > div');
+  if (!row) return;
+
+  const imageCell = row.children[0];
+  if (!imageCell) return;
+
+  // Convert URL string to picture element if needed
+  if (!imageCell.querySelector('picture')) {
+    const url = imageCell.textContent.trim();
+    if (url && (url.startsWith('http') || url.startsWith('/'))) {
+      const picture = document.createElement('picture');
+      const img = document.createElement('img');
+      img.src = url;
+      img.alt = '';
+      img.loading = 'eager';
+      picture.append(img);
+      imageCell.textContent = '';
+      imageCell.append(picture);
+    }
+  }
 }
