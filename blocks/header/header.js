@@ -54,7 +54,7 @@ function buildMegaMenu(categoryItems, headingText) {
   grid.className = 'nav-mega-grid';
 
   categoryItems.forEach((cat) => {
-    const catLink = cat.querySelector(':scope > a');
+    const catLink = cat.querySelector(':scope > a') || cat.querySelector(':scope > p > a');
     const subItems = cat.querySelectorAll(':scope > ul > li');
 
     if (!catLink) return;
