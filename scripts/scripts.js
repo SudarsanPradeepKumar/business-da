@@ -52,6 +52,33 @@ function isUniversalEditor() {
   return /\.(stage-ue|ue)\.da\.live$/.test(window.location.hostname);
 }
 
+function buildHeroHomepageBlock(main) {
+  const sections = main.querySelectorAll(':scope > div');
+  sections.forEach((section) => {
+    const firstP = section.querySelector(':scope > p:first-child');
+    const h1 = section.querySelector(':scope > h1');
+    if (!firstP || !h1) return;
+    const url = firstP.textContent.trim();
+    if (!url.startsWith('http') || !url.includes('/assets/')) return;
+
+    const imageCell = document.createElement('div');
+    const textCell = document.createElement('div');
+    const row = document.createElement('div');
+
+    imageCell.append(firstP);
+    [...section.querySelectorAll(':scope > p, :scope > h1')].forEach((el) => {
+      textCell.append(el);
+    });
+
+    row.append(imageCell, textCell);
+    const block = buildBlock('hero-homepage', '');
+    block.textContent = '';
+    block.append(row);
+
+    section.prepend(block);
+  });
+}
+
 function buildAutoBlocks(main) {
   try {
     if (isUniversalEditor()) return;
@@ -74,6 +101,7 @@ function buildAutoBlocks(main) {
       });
     }
 
+    buildHeroHomepageBlock(main);
     buildHeroBlock(main);
   } catch (error) {
     // eslint-disable-next-line no-console
