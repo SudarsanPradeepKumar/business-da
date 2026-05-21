@@ -632,22 +632,7 @@
   },
   {
     "id": "hero-homepage",
-    "fields": [
-      {
-        "component": "reference",
-        "valueType": "string",
-        "name": "image",
-        "label": "Image",
-        "multi": false
-      },
-      {
-        "component": "richtext",
-        "valueType": "string",
-        "name": "text",
-        "label": "Content",
-        "value": ""
-      }
-    ]
+    "fields": []
   },
   {
     "id": "form",
