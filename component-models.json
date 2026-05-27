@@ -58,6 +58,17 @@
     ]
   },
   {
+    "id": "fragment",
+    "fields": [
+      {
+        "component": "aem-content",
+        "name": "link",
+        "label": "Fragment",
+        "description": "Path to the fragment content"
+      }
+    ]
+  },
+  {
     "id": "cards-product-item",
     "fields": [
       {
