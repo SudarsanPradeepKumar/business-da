@@ -1,1 +1,10 @@
 /* stylelint-disable no-empty-source */
+
+main > .section > .fragment-wrapper {
+    max-width: none;
+    padding: 0;
+}
+
+
+
+  
