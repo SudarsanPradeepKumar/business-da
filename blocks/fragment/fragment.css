@@ -1,1 +1,9 @@
-/* stylelint-disable no-empty-source */
+.fragment > .section {
+  margin: 0;
+}
+
+.fragment > .section > div {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
