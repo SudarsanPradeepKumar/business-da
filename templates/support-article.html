@@ -11,15 +11,17 @@
 
   <div>
     {{{article.body}}}
+  </div>
 
-    {{#article.hasVideoEmbed}}
+  {{#article.hasVideoEmbed}}
+  <div>
     <div class="embed">
       <div>
         <a href="{{article.videoEmbedUrl}}">{{article.videoEmbedUrl}}</a>
       </div>
     </div>
-    {{/article.hasVideoEmbed}}
   </div>
+  {{/article.hasVideoEmbed}}
 
   {{#hasRelatedContent}}
   <div>
