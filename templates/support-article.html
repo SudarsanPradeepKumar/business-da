@@ -11,6 +11,14 @@
 
   <div>
     {{{article.body}}}
+
+    {{#article.hasVideoEmbed}}
+    <div class="embed">
+      <div>
+        <a href="{{article.videoEmbedUrl}}">{{article.videoEmbedUrl}}</a>
+      </div>
+    </div>
+    {{/article.hasVideoEmbed}}
   </div>
 
   {{#hasRelatedContent}}
@@ -18,9 +26,7 @@
     <h2>Related content</h2>
     <ul>
       {{#relatedContent}}
-      <li>
-        <a href="{{url}}">{{title}}</a>
-      </li>
+      <li><a href="{{url}}">{{title}}</a></li>
       {{/relatedContent}}
     </ul>
   </div>
