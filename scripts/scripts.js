@@ -79,6 +79,70 @@ function buildHeroHomepageBlock(main) {
   });
 }
 
+/**
+ * Returns true if the URL is a YouTube URL we want to convert to a block.
+ * @param {string} url
+ * @returns {boolean}
+ */
+function isYouTubeUrl(url) {
+  try {
+    const parsed = new URL(url, window.location.href);
+    const host = parsed.hostname.replace(/^www\./, '');
+    return host === 'youtube.com'
+      || host === 'm.youtube.com'
+      || host === 'youtu.be';
+  } catch (e) {
+    return false;
+  }
+}
+
+/**
+ * If a section contains only one meaningful paragraph with one YouTube link,
+ * return that href so we can autoblock it.
+ * @param {Element} section
+ * @returns {string|null}
+ */
+function getYouTubeLinkFromSection(section) {
+  const children = [...section.children].filter((el) => (el.textContent || '').trim().length > 0);
+
+  if (children.length !== 1) return null;
+
+  const onlyChild = children[0];
+  if (onlyChild.tagName !== 'P') return null;
+
+  const links = onlyChild.querySelectorAll('a[href]');
+  if (links.length !== 1) return null;
+
+  const href = links[0].getAttribute('href');
+  if (!href || !isYouTubeUrl(href)) return null;
+
+  return href;
+}
+
+/**
+ * Converts plain YouTube-link sections into a real embed block before decorateBlocks runs.
+ * This is needed because the BYOM/html ingestion keeps semantic link markup,
+ * not arbitrary block classes from server-rendered HTML.
+ * @param {Element} main
+ */
+function autoBlockYouTubeEmbeds(main) {
+  [...main.querySelectorAll(':scope > div')].forEach((section) => {
+    const href = getYouTubeLinkFromSection(section);
+    if (!href) return;
+
+    // Avoid double-processing if this section already contains a block.
+    if (section.querySelector('.embed, .video')) return;
+
+    const link = document.createElement('a');
+    link.href = href;
+    link.textContent = href;
+
+    const embedBlock = buildBlock('embed', [[link]]);
+    section.innerHTML = '';
+    section.append(embedBlock);
+  });
+}
+
 function buildAutoBlocks(main) {
   try {
     if (!isUniversalEditor()) {
@@ -103,6 +167,7 @@ function buildAutoBlocks(main) {
 
     buildHeroHomepageBlock(main);
     buildHeroBlock(main);
+    autoBlockYouTubeEmbeds(main);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Auto Blocking failed', error);
@@ -220,7 +285,6 @@ async function loadLazy(doc) {
   } else {
     // wait for sidekick to be loaded
     document.addEventListener('sidekick-ready', () => {
-    // sidekick now loaded
       addSidekickListeners(document.querySelector('aem-sidekick'));
     }, { once: true });
   }
