@@ -7,15 +7,13 @@
     {{#article.topicLabel}}
     <p>Topic: {{article.topicLabel}}</p>
     {{/article.topicLabel}}
-    <p> video embedded: {{article.hasVideoEmbed}}</p>
   </div>
 
   <div>
     {{{article.body}}}
   </div>
-  {{article.hasVideoEmbed}}
+
   {{#article.hasVideoEmbed}}
-  {{article.hasVideoEmbed}}
   <div>
     <div class="embed">
       <div>
@@ -24,14 +22,6 @@
     </div>
   </div>
   {{/article.hasVideoEmbed}}
-
-  <div>
-    <div class="embed">
-      <div>
-        <a href="{{article.videoEmbedUrl}}">{{article.videoEmbedUrl}}</a>
-      </div>
-    </div>
-  </div>
 
   {{#hasRelatedContent}}
   <div>
