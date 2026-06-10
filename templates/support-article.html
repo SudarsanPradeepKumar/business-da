@@ -1,0 +1,32 @@
+<main>
+  <div class="hero">
+    <div>
+      <h1>{{article.title}}</h1>
+      {{#article.seoDescription}}
+      <p>{{article.seoDescription}}</p>
+      {{/article.seoDescription}}
+      {{#article.topicLabel}}
+      <p>Topic: {{article.topicLabel}}</p>
+      {{/article.topicLabel}}
+    </div>
+  </div>
+
+  <div class="section">
+    <div>
+      {{{article.body}}}
+    </div>
+  </div>
+
+  {{#hasRelatedContent}}
+  <div class="section">
+    <div>
+      <h2>Related content</h2>
+      <ul>
+        {{#relatedContent}}
+        <li><a href="{{url}}">{{title}}</a></li>
+        {{/relatedContent}}
+      </ul>
+    </div>
+  </div>
+  {{/hasRelatedContent}}
+</main>
