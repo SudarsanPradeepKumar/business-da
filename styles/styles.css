@@ -368,6 +368,7 @@ main .support-article-layout {
 
 main .support-article-main {
   min-width: 0;
+  padding: 0 32px;
 }
 
 main .support-article-main > .section {
@@ -382,7 +383,6 @@ main .support-article-sidebar {
 
 main .support-article-sidebar > .section {
   padding-left: 1rem;
-  border-left: 1px solid #ddd;
 }
 
 main .support-article-sidebar h2 {
@@ -392,6 +392,7 @@ main .support-article-sidebar h2 {
 main .support-article-sidebar ul {
   margin: 0;
   padding-left: 1.25rem;
+  list-style: none;
 }
 
 main .support-article-sidebar li + li {
