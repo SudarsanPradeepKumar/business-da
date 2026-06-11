@@ -21,10 +21,9 @@ function buildHeroBlock(main) {
   const picture = main.querySelector('picture');
   // eslint-disable-next-line no-bitwise
   if (h1 && picture && (h1.compareDocumentPosition(picture) & Node.DOCUMENT_POSITION_PRECEDING)) {
-    // Check if h1 or picture is already inside a hero block
     if (h1.closest('.hero') || picture.closest('.hero')
       || h1.closest('[class^="hero"]') || picture.closest('[class^="hero"]')) {
-      return; // Don't create a duplicate hero block
+      return;
     }
     const section = document.createElement('div');
     section.append(buildBlock('hero', { elems: [picture, h1] }));
@@ -104,9 +103,120 @@ function isYouTubeVideoUrl(url) {
 }
 
 /**
+ * True only when a node is a standalone video URL paragraph.
+ * Good:
+ * <p><a href="https://www.youtube.com/watch?v=abc">https://www.youtube.com/watch?v=abc</a></p>
+ *
+ * Not good:
+ * <p>You can view our playlist on <a href="...">YouTube</a>.</p>
+ * @param {Element} node
+ * @returns {boolean}
+ */
+function isStandaloneVideoParagraph(node) {
+  if (!node || node.tagName !== 'P') return false;
+
+  const links = node.querySelectorAll('a[href]');
+  if (links.length !== 1) return false;
+
+  const link = links[0];
+  const href = link.getAttribute('href');
+  if (!href || !isYouTubeVideoUrl(href)) return false;
+
+  const paragraphText = node.textContent.trim();
+  const linkText = link.textContent.trim();
+
+  return paragraphText === linkText;
+}
+
+/**
+ * Returns true only for the related content heading.
+ * @param {Element} node
+ * @returns {boolean}
+ */
+function isRelatedContentHeading(node) {
+  return node
+    && /^H[1-6]$/.test(node.tagName)
+    && node.textContent.trim().toLowerCase() === 'related content';
+}
+
+/**
+ * Create a top-level semantic section from nodes.
+ * @param {Element[]} nodes
+ * @returns {HTMLDivElement}
+ */
+function createSectionFromNodes(nodes) {
+  const section = document.createElement('div');
+  nodes.forEach((node) => section.append(node));
+  return section;
+}
+
+/**
+ * Splits mixed sections around standalone video paragraphs so the video
+ * can be autoblocked without affecting prose before/after it.
+ * @param {Element} main
+ */
+function splitSectionsAroundVideoParagraphs(main) {
+  const sections = [...main.querySelectorAll(':scope > div')];
+
+  sections.forEach((section) => {
+    const children = [...section.children];
+    const hasStandaloneVideo = children.some((child) => isStandaloneVideoParagraph(child));
+    if (!hasStandaloneVideo) return;
+
+    const replacementSections = [];
+    let buffer = [];
+
+    children.forEach((child) => {
+      if (isStandaloneVideoParagraph(child)) {
+        if (buffer.length) {
+          replacementSections.push(createSectionFromNodes(buffer));
+          buffer = [];
+        }
+        replacementSections.push(createSectionFromNodes([child]));
+      } else {
+        buffer.push(child);
+      }
+    });
+
+    if (buffer.length) {
+      replacementSections.push(createSectionFromNodes(buffer));
+    }
+
+    section.replaceWith(...replacementSections);
+  });
+}
+
+/**
+ * Splits mixed sections around the "Related content" heading so the sidebar
+ * content can be isolated from the article body.
+ * @param {Element} main
+ */
+function splitSectionsAroundRelatedContent(main) {
+  const sections = [...main.querySelectorAll(':scope > div')];
+
+  sections.forEach((section) => {
+    const children = [...section.children];
+    const headingIndex = children.findIndex((child) => isRelatedContentHeading(child));
+    if (headingIndex === -1) return;
+
+    const before = children.slice(0, headingIndex);
+    const after = children.slice(headingIndex);
+
+    const replacements = [];
+    if (before.length) replacements.push(createSectionFromNodes(before));
+
+    if (after.length) {
+      const relatedSection = createSectionFromNodes(after);
+      relatedSection.dataset.relatedContent = 'true';
+      replacements.push(relatedSection);
+    }
+
+    section.replaceWith(...replacements);
+  });
+}
+
+/**
  * Returns the href only when the section is a standalone video-link paragraph.
- * This avoids converting normal prose like:
- * "You can view our playlist on YouTube."
  * @param {Element} section
  * @returns {string|null}
  */
@@ -128,12 +238,6 @@ function getYouTubeVideoLinkFromSection(section) {
   const paragraphText = onlyChild.textContent.trim();
   const linkText = link.textContent.trim();
 
-  // Only autoblock when the whole paragraph is basically just the URL text.
-  // Good:
-  // <p><a href="https://www.youtube.com/watch?v=abc">https://www.youtube.com/watch?v=abc</a></p>
-  //
-  // Skip:
-  // <p>You can view our playlist on <a href="...">YouTube</a>.</p>
   if (paragraphText !== linkText) return null;
 
   return href;
@@ -145,12 +249,7 @@ function getYouTubeVideoLinkFromSection(section) {
  * @param {Element} main
  */
 function autoBlockYouTubeEmbeds(main) {
-  const candidateSections = [
-    ...main.querySelectorAll(':scope > div'),
-    ...main.querySelectorAll('.support-article-main > .support-article-segment'),
-  ];
-
-  candidateSections.forEach((section) => {
+  [...main.querySelectorAll(':scope > div')].forEach((section) => {
     const href = getYouTubeVideoLinkFromSection(section);
     if (!href) return;
 
@@ -161,10 +260,54 @@ function autoBlockYouTubeEmbeds(main) {
     link.textContent = href;
 
     const embedBlock = buildBlock('embed', [[link]]);
-    section.classList.add('video-embed-section');
+    section.dataset.videoEmbed = 'true';
     section.innerHTML = '';
     section.append(embedBlock);
   });
+}
+
+/**
+ * Builds a two-column support-article layout in the live DOM after sections
+ * are decorated.
+ * Structure:
+ * - first section = intro
+ * - middle sections = article main
+ * - related-content section = sidebar
+ * @param {Element} main
+ */
+function buildSupportArticleLayout(main) {
+  const topSections = [...main.querySelectorAll(':scope > .section')];
+  if (topSections.length < 2) return;
+  if (main.querySelector(':scope > .support-article-layout')) return;
+
+  const introSection = topSections[0];
+  const relatedSection = topSections.find((section) => section.dataset.relatedContent === 'true'
+    || section.querySelector('h2')?.textContent.trim().toLowerCase() === 'related content');
+
+  if (!relatedSection) return;
+
+  const contentSections = topSections.filter(
+    (section) => section !== introSection && section !== relatedSection,
+  );
+
+  if (!contentSections.length) return;
+
+  introSection.classList.add('support-article-intro');
+
+  const layout = document.createElement('div');
+  layout.className = 'support-article-layout';
+
+  const mainCol = document.createElement('div');
+  mainCol.className = 'support-article-main';
+
+  const sidebar = document.createElement('aside');
+  sidebar.className = 'support-article-sidebar';
+
+  contentSections.forEach((section) => mainCol.append(section));
+  sidebar.append(relatedSection);
+
+  layout.append(mainCol, sidebar);
+  introSection.insertAdjacentElement('afterend', layout);
 }
 
 function buildAutoBlocks(main) {
@@ -191,6 +334,9 @@ function buildAutoBlocks(main) {
 
     buildHeroHomepageBlock(main);
     buildHeroBlock(main);
+
+    splitSectionsAroundVideoParagraphs(main);
+    splitSectionsAroundRelatedContent(main);
     autoBlockYouTubeEmbeds(main);
   } catch (error) {
     // eslint-disable-next-line no-console
@@ -248,6 +394,7 @@ export function decorateMain(main) {
   decorateSections(main);
   decorateBlocks(main);
   decorateButtons(main);
+  buildSupportArticleLayout(main);
 }
 
 /**
