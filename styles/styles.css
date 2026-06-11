@@ -385,8 +385,9 @@ main .support-article-sidebar > .section {
   padding-left: 1rem;
 }
 
-main .support-article-sidebar h2 {
+main .support-article-sidebar h3 {
   margin-top: 0;
+  padding-left: 1.25rem;
 }
 
 main .support-article-sidebar ul {
