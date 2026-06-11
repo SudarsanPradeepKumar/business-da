@@ -80,29 +80,37 @@ function buildHeroHomepageBlock(main) {
 }
 
 /**
- * Returns true if the URL is a YouTube URL we want to convert to a block.
+ * Returns true only for direct YouTube video URLs, not playlist links.
  * @param {string} url
  * @returns {boolean}
  */
-function isYouTubeUrl(url) {
+function isYouTubeVideoUrl(url) {
   try {
     const parsed = new URL(url, window.location.href);
     const host = parsed.hostname.replace(/^www\./, '');
-    return host === 'youtube.com'
-      || host === 'm.youtube.com'
-      || host === 'youtu.be';
+
+    if (host === 'youtu.be') return true;
+
+    if (host === 'youtube.com' || host === 'm.youtube.com') {
+      if (parsed.pathname.startsWith('/watch') && parsed.searchParams.get('v')) return true;
+      if (parsed.pathname.startsWith('/embed/')) return true;
+      return false;
+    }
+
+    return false;
   } catch (e) {
     return false;
   }
 }
 
 /**
- * If a section contains only one meaningful paragraph with one YouTube link,
- * return that href so we can autoblock it.
+ * Returns the href only when the section is a standalone video-link paragraph.
+ * This avoids converting normal prose like:
+ * "You can view our playlist on YouTube."
  * @param {Element} section
  * @returns {string|null}
  */
-function getYouTubeLinkFromSection(section) {
+function getYouTubeVideoLinkFromSection(section) {
   const children = [...section.children].filter((el) => (el.textContent || '').trim().length > 0);
 
   if (children.length !== 1) return null;
@@ -113,21 +121,32 @@ function getYouTubeLinkFromSection(section) {
   const links = onlyChild.querySelectorAll('a[href]');
   if (links.length !== 1) return null;
 
-  const href = links[0].getAttribute('href');
-  if (!href || !isYouTubeUrl(href)) return null;
+  const link = links[0];
+  const href = link.getAttribute('href');
+  if (!href || !isYouTubeVideoUrl(href)) return null;
+
+  const paragraphText = onlyChild.textContent.trim();
+  const linkText = link.textContent.trim();
+
+  // Only autoblock when the whole paragraph is basically just the URL text.
+  // Good:
+  // <p><a href="https://www.youtube.com/watch?v=abc">https://www.youtube.com/watch?v=abc</a></p>
+  //
+  // Skip:
+  // <p>You can view our playlist on <a href="...">YouTube</a>.</p>
+  if (paragraphText !== linkText) return null;
 
   return href;
 }
 
 /**
- * Converts plain YouTube-link sections into a real embed block before decorateBlocks runs.
- * This is needed because the BYOM/html ingestion keeps semantic link markup,
- * not arbitrary block classes from server-rendered HTML.
+ * Converts plain standalone YouTube video-link sections into a real embed block
+ * before decorateBlocks(main) runs.
  * @param {Element} main
  */
 function autoBlockYouTubeEmbeds(main) {
   [...main.querySelectorAll(':scope > div')].forEach((section) => {
-    const href = getYouTubeLinkFromSection(section);
+    const href = getYouTubeVideoLinkFromSection(section);
     if (!href) return;
 
     // Avoid double-processing if this section already contains a block.
