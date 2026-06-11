@@ -6,7 +6,7 @@
   <body>
     <header></header>
    <main>
-  <div class="support-article-intro">
+  <div class="article-intro">
   <div>
     <div>
       <h1>{{article.title}}</h1>
@@ -19,10 +19,10 @@
     </div>
   </div>
 </div>
-  <div class="support-article-layout">
-    <div class="support-article-main">
+  <div class="article-layout">
+    <div class="article-main">
       {{#article.segments}}
-      <div class="support-article-segment">
+      <div class="article-segment">
         {{#isHtml}}
         {{{html}}}
         {{/isHtml}}
@@ -35,7 +35,7 @@
     </div>
 
     {{#hasRelatedContent}}
-    <aside class="support-article-sidebar">
+    <aside class="article-sidebar">
       <h2>Related content</h2>
       <ul>
         {{#relatedContent}}
