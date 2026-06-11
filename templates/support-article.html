@@ -1,42 +1,23 @@
 <main>
-  <nav aria-label="Breadcrumb">
-    <ol>
-      <li><a href="https://business.att.com/">Home</a></li>
-      <li><a href="https://www.business.att.com/support.html">AT&amp;T Support for Business Customers</a></li>
-      <li>{{article.title}}</li>
-    </ol>
-  </nav>
-
-  <div>
     <h1>{{article.title}}</h1>
-    {{#article.seoDescription}}
-    <p>{{article.seoDescription}}</p>
-    {{/article.seoDescription}}
-    {{#article.topicLabel}}
-    <p>Topic: {{article.topicLabel}}</p>
-    {{/article.topicLabel}}
-  </div>
-
-  {{#article.segments}}
-  <div>
-    {{#isHtml}}
-    {{{html}}}
-    {{/isHtml}}
-
-    {{#isVideo}}
-    <p><a href="{{url}}">{{url}}</a></p>
-    {{/isVideo}}
-  </div>
-  {{/article.segments}}
-
-  {{#hasRelatedContent}}
-  <div>
-    <h2>Related content</h2>
-    <ul>
-      {{#relatedContent}}
-      <li><a href="{{url}}">{{title}}</a></li>
-      {{/relatedContent}}
-    </ul>
-  </div>
-  {{/hasRelatedContent}}
+    {{#article.segments}}
+    <div>
+        {{#isHtml}}
+        {{{html}}}
+        {{/isHtml}}
+        {{#isVideo}}
+        <p><a href="{{url}}">{{url}}</a></p>
+        {{/isVideo}}
+    </div>
+    {{/article.segments}}
+    {{#hasRelatedContent}}
+    <div>
+        <h2>Related content</h2>
+        <ul>
+            {{#relatedContent}}
+            <li><a href="{{url}}">{{title}}</a></li>
+            {{/relatedContent}}
+        </ul>
+    </div>
+    {{/hasRelatedContent}}
 </main>
