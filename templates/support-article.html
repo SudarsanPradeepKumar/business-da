@@ -1,14 +1,24 @@
-<main>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>{{name}}</title>
+  </head>
+  <body>
+    <header></header>
+   <main>
   <div class="support-article-intro">
-    <h1>{{article.title}}</h1>
-    {{#article.seoDescription}}
-    <p>{{article.seoDescription}}</p>
-    {{/article.seoDescription}}
-    {{#article.topicLabel}}
-    <p>Topic: {{article.topicLabel}}</p>
-    {{/article.topicLabel}}
+  <div>
+    <div>
+      <h1>{{article.title}}</h1>
+      {{#article.seoDescription}}
+      <p>{{article.seoDescription}}</p>
+      {{/article.seoDescription}}
+      {{#article.topicLabel}}
+      <p>Topic: {{article.topicLabel}}</p>
+      {{/article.topicLabel}}
+    </div>
   </div>
-
+</div>
   <div class="support-article-layout">
     <div class="support-article-main">
       {{#article.segments}}
@@ -36,3 +46,6 @@
     {{/hasRelatedContent}}
   </div>
 </main>
+    <footer></footer>
+  </body>
+</html>
