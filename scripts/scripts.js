@@ -21,9 +21,10 @@ function buildHeroBlock(main) {
   const picture = main.querySelector('picture');
   // eslint-disable-next-line no-bitwise
   if (h1 && picture && (h1.compareDocumentPosition(picture) & Node.DOCUMENT_POSITION_PRECEDING)) {
+    // Check if h1 or picture is already inside a hero block
     if (h1.closest('.hero') || picture.closest('.hero')
       || h1.closest('[class^="hero"]') || picture.closest('[class^="hero"]')) {
-      return;
+      return; // Don't create a duplicate hero block
     }
     const section = document.createElement('div');
     section.append(buildBlock('hero', { elems: [picture, h1] }));
@@ -37,14 +38,16 @@ function buildHeroBlock(main) {
 async function loadFonts() {
   await loadCSS(`${window.hlx.codeBasePath}/styles/fonts.css`);
   try {
-    if (!window.location.hostname.includes('localhost')) {
-      sessionStorage.setItem('fonts-loaded', 'true');
-    }
+    if (!window.location.hostname.includes('localhost')) sessionStorage.setItem('fonts-loaded', 'true');
   } catch (e) {
     // do nothing
   }
 }
 
+/**
+ * Builds all synthetic blocks in a container element.
+ * @param {Element} main The container element
+ */
 function isUniversalEditor() {
   return /\.(stage-ue|ue)\.da\.live$/.test(window.location.hostname);
 }
@@ -77,36 +80,29 @@ function buildHeroHomepageBlock(main) {
 }
 
 /**
- * Returns true only for direct YouTube video URLs, not playlist links.
+ * Returns true if the URL is a YouTube URL we want to convert to a block.
  * @param {string} url
  * @returns {boolean}
  */
-function isYouTubeVideoUrl(url) {
+function isYouTubeUrl(url) {
   try {
     const parsed = new URL(url, window.location.href);
     const host = parsed.hostname.replace(/^www\./, '');
-
-    if (host === 'youtu.be') return true;
-
-    if (host === 'youtube.com' || host === 'm.youtube.com') {
-      if (parsed.pathname.startsWith('/watch') && parsed.searchParams.get('v')) return true;
-      if (parsed.pathname.startsWith('/embed/')) return true;
-      return false;
-    }
-
-    return false;
+    return host === 'youtube.com'
+      || host === 'm.youtube.com'
+      || host === 'youtu.be';
   } catch (e) {
     return false;
   }
 }
 
 /**
- * Returns a YouTube video link only when the section is just a standalone
- * URL paragraph, not regular prose with a link in it.
+ * If a section contains only one meaningful paragraph with one YouTube link,
+ * return that href so we can autoblock it.
  * @param {Element} section
  * @returns {string|null}
  */
-function getYouTubeVideoLinkFromSection(section) {
+function getYouTubeLinkFromSection(section) {
   const children = [...section.children].filter((el) => (el.textContent || '').trim().length > 0);
 
   if (children.length !== 1) return null;
@@ -117,31 +113,24 @@ function getYouTubeVideoLinkFromSection(section) {
   const links = onlyChild.querySelectorAll('a[href]');
   if (links.length !== 1) return null;
 
-  const link = links[0];
-  const href = link.getAttribute('href');
-  if (!href || !isYouTubeVideoUrl(href)) return null;
-
-  const paragraphText = onlyChild.textContent.trim();
-  const linkText = link.textContent.trim();
-
-  // Only convert when the whole paragraph is effectively just the link.
-  // This prevents prose such as:
-  // "You can view our entire Business Center playlist on YouTube."
-  if (paragraphText !== linkText) return null;
+  const href = links[0].getAttribute('href');
+  if (!href || !isYouTubeUrl(href)) return null;
 
   return href;
 }
 
 /**
- * Converts plain video-link sections into a real embed block before
- * decorateBlocks(main) runs.
+ * Converts plain YouTube-link sections into a real embed block before decorateBlocks runs.
+ * This is needed because the BYOM/html ingestion keeps semantic link markup,
+ * not arbitrary block classes from server-rendered HTML.
  * @param {Element} main
  */
 function autoBlockYouTubeEmbeds(main) {
   [...main.querySelectorAll(':scope > div')].forEach((section) => {
-    const href = getYouTubeVideoLinkFromSection(section);
+    const href = getYouTubeLinkFromSection(section);
     if (!href) return;
 
+    // Avoid double-processing if this section already contains a block.
     if (section.querySelector('.embed, .video')) return;
 
     const link = document.createElement('a');
@@ -157,8 +146,10 @@ function autoBlockYouTubeEmbeds(main) {
 function buildAutoBlocks(main) {
   try {
     if (!isUniversalEditor()) {
+      // auto load `*/fragments/*` references
       const fragments = [...main.querySelectorAll('a[href*="/fragments/"]')].filter((f) => !f.closest('.fragment'));
       if (fragments.length > 0) {
+        // eslint-disable-next-line import/no-cycle
         import('../blocks/fragment/fragment.js').then(({ loadFragment }) => {
           fragments.forEach(async (fragment) => {
             try {
@@ -193,21 +184,22 @@ function decorateButtons(main) {
     const p = a.closest('p');
     const text = a.textContent.trim();
 
+    // quick structural checks
     if (a.querySelector('img') || p.textContent.trim() !== text) return;
 
+    // skip URL display links
     try {
       if (new URL(a.href).href === new URL(text, window.location).href) return;
-    } catch {
-      // continue
-    }
+    } catch { /* continue */ }
 
+    // require authored formatting for buttonization
     const strong = a.closest('strong');
     const em = a.closest('em');
     if (!strong && !em) return;
 
     p.className = 'button-wrapper';
     a.className = 'button';
-    if (strong && em) {
+    if (strong && em) { // high-impact call-to-action
       a.classList.add('accent');
       const outer = strong.contains(em) ? strong : em;
       outer.replaceWith(a);
@@ -221,6 +213,10 @@ function decorateButtons(main) {
   });
 }
 
+/**
+ * Decorates the main element.
+ * @param {Element} main The main element
+ */
 // eslint-disable-next-line import/prefer-default-export
 export function decorateMain(main) {
   decorateIcons(main);
@@ -230,6 +226,10 @@ export function decorateMain(main) {
   decorateButtons(main);
 }
 
+/**
+ * Loads everything needed to get to LCP.
+ * @param {Element} doc The container element
+ */
 async function loadEager(doc) {
   document.documentElement.lang = 'en';
   decorateTemplateAndTheme();
@@ -241,6 +241,7 @@ async function loadEager(doc) {
   }
 
   try {
+    /* if desktop (proxy for fast connection) or fonts already loaded, load fonts.css */
     if (window.innerWidth >= 900 || sessionStorage.getItem('fonts-loaded')) {
       loadFonts();
     }
@@ -249,6 +250,10 @@ async function loadEager(doc) {
   }
 }
 
+/**
+ * Loads everything that doesn't need to be delayed.
+ * @param {Element} doc The container element
+ */
 async function loadLazy(doc) {
   loadHeader(doc.querySelector('header'));
 
@@ -265,6 +270,7 @@ async function loadLazy(doc) {
   loadFonts();
 
   const loadQuickEdit = async (...args) => {
+    // eslint-disable-next-line import/no-cycle
     const { default: initQuickEdit } = await import('../tools/quick-edit/quick-edit.js');
     initQuickEdit(...args);
   };
@@ -277,6 +283,7 @@ async function loadLazy(doc) {
   if (sk) {
     addSidekickListeners(sk);
   } else {
+    // wait for sidekick to be loaded
     document.addEventListener('sidekick-ready', () => {
       addSidekickListeners(document.querySelector('aem-sidekick'));
     }, { once: true });
@@ -288,8 +295,14 @@ async function loadLazy(doc) {
   if (hasQE) import('../tools/quick-edit/quick-edit.js').then((mod) => mod.default());
 })();
 
+/**
+ * Loads everything that happens a lot later,
+ * without impacting the user experience.
+ */
 function loadDelayed() {
+  // eslint-disable-next-line import/no-cycle
   window.setTimeout(() => import('./delayed.js'), 3000);
+  // load anything that can be postponed to the latest here
 }
 
 export async function loadPage() {
@@ -304,14 +317,16 @@ export async function loadPage() {
 
 loadPage();
 
-(async function loadDaPreview() {
+(async function loadDa() {
   if (!new URL(window.location.href).searchParams.get('dapreview')) return;
+  // eslint-disable-next-line import/no-unresolved
   import('https://da.live/scripts/dapreview.js').then(({ default: daPreview }) => daPreview(loadPage));
 }());
 
-(async function loadDaFeatures() {
+(async function loadDa() {
   const { searchParams } = new URL(window.location.href);
 
+  /* eslint-disable import/no-unresolved */
   if (searchParams.get('dapreview')) {
     import('https://da.live/scripts/dapreview.js')
       .then(({ default: daPreview }) => daPreview(loadPage));
