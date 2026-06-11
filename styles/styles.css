@@ -346,3 +346,77 @@ main .section.accent {
   text-align: center;
   border-radius: 1.6rem;
 }
+
+
+/* Salesforce Support Article */
+main .support-article-intro,
+main .support-article-layout {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+main .support-article-intro {
+  margin-bottom: 2rem;
+}
+
+main .support-article-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 2rem;
+  align-items: start;
+}
+
+main .support-article-main {
+  min-width: 0;
+}
+
+main .support-article-main .support-article-segment {
+  margin-bottom: 1.5rem;
+}
+
+main .support-article-sidebar {
+  position: sticky;
+  top: 2rem;
+  align-self: start;
+  padding-left: 1rem;
+  border-left: 1px solid #ddd;
+}
+
+main .support-article-sidebar h2 {
+  margin-top: 0;
+}
+
+main .support-article-sidebar ul {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+main .support-article-sidebar li + li {
+  margin-top: 0.75rem;
+}
+
+/* default content typography inside the main column */
+main .support-article-main p,
+main .support-article-main ul,
+main .support-article-main ol {
+  line-height: 1.6;
+}
+
+main .support-article-main ul,
+main .support-article-main ol {
+  padding-left: 1.5rem;
+}
+
+/* responsive fallback */
+@media (width <= 900px) {
+  main .support-article-layout {
+    grid-template-columns: 1fr;
+  }
+
+  main .support-article-sidebar {
+    position: static;
+    border-left: 0;
+    padding-left: 0;
+    margin-top: 2rem;
+  }
+}

@@ -145,11 +145,15 @@ function getYouTubeVideoLinkFromSection(section) {
  * @param {Element} main
  */
 function autoBlockYouTubeEmbeds(main) {
-  [...main.querySelectorAll(':scope > div')].forEach((section) => {
+  const candidateSections = [
+    ...main.querySelectorAll(':scope > div'),
+    ...main.querySelectorAll('.support-article-main > .support-article-segment'),
+  ];
+
+  candidateSections.forEach((section) => {
     const href = getYouTubeVideoLinkFromSection(section);
     if (!href) return;
 
-    // Avoid double-processing if this section already contains a block.
     if (section.querySelector('.embed, .video')) return;
 
     const link = document.createElement('a');
@@ -157,6 +161,7 @@ function autoBlockYouTubeEmbeds(main) {
     link.textContent = href;
 
     const embedBlock = buildBlock('embed', [[link]]);
+    section.classList.add('video-embed-section');
     section.innerHTML = '';
     section.append(embedBlock);
   });

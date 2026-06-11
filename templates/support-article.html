@@ -1,5 +1,5 @@
 <main>
-  <div>
+  <div class="support-article-intro">
     <h1>{{article.title}}</h1>
     {{#article.seoDescription}}
     <p>{{article.seoDescription}}</p>
@@ -9,26 +9,30 @@
     {{/article.topicLabel}}
   </div>
 
-  {{#article.segments}}
-  <div>
-    {{#isHtml}}
-    {{{html}}}
-    {{/isHtml}}
+  <div class="support-article-layout">
+    <div class="support-article-main">
+      {{#article.segments}}
+      <div class="support-article-segment">
+        {{#isHtml}}
+        {{{html}}}
+        {{/isHtml}}
 
-    {{#isVideo}}
-    <p><a href="{{url}}">{{url}}</a></p>
-    {{/isVideo}}
-  </div>
-  {{/article.segments}}
+        {{#isVideo}}
+        <p><a href="{{url}}">{{url}}</a></p>
+        {{/isVideo}}
+      </div>
+      {{/article.segments}}
+    </div>
 
-  {{#hasRelatedContent}}
-  <div>
-    <h2>Related content</h2>
-    <ul>
-      {{#relatedContent}}
-      <li><a href="{{url}}">{{title}}</a></li>
-      {{/relatedContent}}
-    </ul>
+    {{#hasRelatedContent}}
+    <aside class="support-article-sidebar">
+      <h2>Related content</h2>
+      <ul>
+        {{#relatedContent}}
+        <li><a href="{{url}}">{{title}}</a></li>
+        {{/relatedContent}}
+      </ul>
+    </aside>
+    {{/hasRelatedContent}}
   </div>
-  {{/hasRelatedContent}}
 </main>
