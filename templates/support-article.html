@@ -9,14 +9,17 @@
     {{/article.topicLabel}}
   </div>
 
+  {{#article.segments}}
   <div>
-    {{{article.body}}}
+    {{#isHtml}}
+    {{{html}}}
+    {{/isHtml}}
+
+    {{#isVideo}}
+    <p><a href="{{url}}">{{url}}</a></p>
+    {{/isVideo}}
   </div>
-  {{#article.hasVideoEmbed}}
-    <div>
-    <p><a href="{{article.videoEmbedUrl}}">{{article.videoEmbedUrl}}</a></p>
-    </div>
-{{/article.hasVideoEmbed}}
+  {{/article.segments}}
 
   {{#hasRelatedContent}}
   <div>
