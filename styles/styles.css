@@ -376,7 +376,6 @@ main .support-article-main > .section {
 }
 
 main .support-article-sidebar {
-  position: sticky;
   top: 2rem;
   align-self: start;
 }
