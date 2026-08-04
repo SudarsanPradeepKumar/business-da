@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Support Article Importer</title>
+    <link rel="stylesheet" href="./app.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="app-header">
+        <div>
+          <p class="eyebrow">DA App</p>
+          <h1>Support Article Importer</h1>
+          <p class="intro">
+            Paste one or many support article URLs or article IDs. The app extracts article IDs,
+            warms the Edge Function endpoint, and can preview/publish the generated EDS pages.
+          </p>
+        </div>
+      </header>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Input</h2>
+        </div>
+
+        <label class="field-label" for="article-input">Support article URLs or IDs</label>
+        <textarea
+          id="article-input"
+          class="input-area"
+          rows="10"
+          placeholder="Examples:
+000096905
+https://www.business.att.com/support/supportcenter.html?content!000096905#topic_billingaccounts1
+https://services.att.com/kmservices/v2/contents/000096905?app-id=gmarket
+https://main--business-da--sudarsanpradeepkumar.aem.page/support/articles/000096905"
+        ></textarea>
+
+        <p class="help-text">
+          One or many values. Separate by new lines, commas, or semicolons.
+        </p>
+
+        <div class="action-row">
+          <button id="parse-btn" class="button secondary" type="button">Parse IDs</button>
+          <button id="warm-btn" class="button secondary" type="button">Warm Edge</button>
+          <button id="preview-btn" class="button secondary" type="button">Preview</button>
+          <button id="publish-btn" class="button secondary" type="button">Publish</button>
+          <button id="run-all-btn" class="button primary" type="button">Run All</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Detected article IDs</h2>
+          <span id="id-count" class="counter">0 IDs</span>
+        </div>
+        <div id="id-chips" class="chips"></div>
+        <div id="invalid-inputs" class="invalid-inputs"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Status</h2>
+          <button id="clear-log-btn" class="button ghost" type="button">Clear Log</button>
+        </div>
+
+        <div id="summary" class="summary" aria-live="polite">
+          No work started yet.
+        </div>
+
+        <div class="table-wrap">
+          <table class="results-table">
+            <thead>
+              <tr>
+                <th>Article ID</th>
+                <th>Title</th>
+                <th>Warm</th>
+                <th>Preview</th>
+                <th>Publish</th>
+                <th>Links</th>
+                <th>Message</th>
+              </tr>
+            </thead>
+            <tbody id="results-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <h2>Execution log</h2>
+        </div>
+        <pre id="log-output" class="log-output" aria-live="polite"></pre>
+      </section>
+    </main>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
