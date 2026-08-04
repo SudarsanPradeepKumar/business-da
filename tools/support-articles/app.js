@@ -34,8 +34,6 @@ const els = {
   summaryFailed: document.getElementById('summaryFailed'),
 };
 
-let currentResolved = [];
-
 function appendLog(message, level = 'info') {
   const timestamp = new Date().toISOString();
   const prefix = level.toUpperCase().padEnd(5, ' ');
@@ -89,8 +87,10 @@ function writeConfigToForm(config) {
   els.site.value = config.site || '';
   els.branch.value = config.branch || DEFAULTS.branch;
   els.edgeEndpointTemplate.value = config.edgeEndpointTemplate || DEFAULTS.edgeEndpointTemplate;
-  els.previewEndpointTemplate.value = config.previewEndpointTemplate || DEFAULTS.previewEndpointTemplate;
-  els.publishEndpointTemplate.value = config.publishEndpointTemplate || DEFAULTS.publishEndpointTemplate;
+  els.previewEndpointTemplate.value = config.previewEndpointTemplate
+    || DEFAULTS.previewEndpointTemplate;
+  els.publishEndpointTemplate.value = config.publishEndpointTemplate
+    || DEFAULTS.publishEndpointTemplate;
 }
 
 function readConfigFromForm() {
@@ -137,10 +137,10 @@ function extractArticleId(rawValue) {
       /\/support\/([^/?#]+)/i,
     ];
 
-    for (const pattern of pathMatchers) {
-      const match = url.pathname.match(pattern);
-      if (match) return normalizeArticleId(match[1]);
-    }
+    const match = pathMatchers
+      .map((pattern) => url.pathname.match(pattern))
+      .find(Boolean);
+    if (match) return normalizeArticleId(match[1]);
   } catch (e) {
     return '';
   }
@@ -395,7 +395,6 @@ function setRunning(isRunning) {
 function resetApp() {
   els.articleInput.value = '';
   els.adminToken.value = '';
-  currentResolved = [];
   renderResolvedIds([], []);
   clearResults();
   els.resultsBody.innerHTML = `
@@ -409,7 +408,6 @@ function resetApp() {
 
 function parseCurrentInput() {
   const { resolved, invalid } = parseInput(els.articleInput.value);
-  currentResolved = resolved;
   renderResolvedIds(resolved, invalid);
   setSummary({
     resolved: resolved.length,
@@ -439,7 +437,9 @@ async function runBatch() {
     return;
   }
 
-  const shouldWarm = els.optionWarm.checked || els.optionPreview.checked || els.optionPublish.checked;
+  const shouldWarm = els.optionWarm.checked
+    || els.optionPreview.checked
+    || els.optionPublish.checked;
   const shouldPreview = els.optionPreview.checked || els.optionPublish.checked;
   const shouldPublish = els.optionPublish.checked;
 
@@ -458,73 +458,78 @@ async function runBatch() {
   let published = 0;
   let failed = invalid.length;
 
-  try {
-    for (const item of resolved) {
-      const result = createResultRow(item, config);
+  const processItem = async (item) => {
+    const result = createResultRow(item, config);
 
-      try {
-        if (shouldWarm) {
-          setBadgeStatus(result.warmBadge, 'running', 'running');
-          const warm = await warmArticle(item, config);
-          setBadgeStatus(result.warmBadge, 'ok', 'ok');
-          result.messageCell.textContent = `Warmed from ${warm.endpoint}`;
-          appendLog(`Warmed article ${item.id}.`, 'info');
-          warmed += 1;
-        } else {
-          setBadgeStatus(result.warmBadge, 'skipped', 'skipped');
-        }
-
-        if (shouldPreview) {
-          setBadgeStatus(result.previewBadge, 'running', 'running');
-          await previewArticle(item, config);
-          setBadgeStatus(result.previewBadge, 'ok', 'ok');
-          appendLog(`Previewed /support/articles/${item.id}.`, 'info');
-          previewed += 1;
-        } else {
-          setBadgeStatus(result.previewBadge, 'skipped', 'skipped');
-        }
-
-        if (shouldPublish) {
-          setBadgeStatus(result.publishBadge, 'running', 'running');
-          await publishArticle(item, config);
-          setBadgeStatus(result.publishBadge, 'ok', 'ok');
-          appendLog(`Published /support/articles/${item.id}.`, 'info');
-          published += 1;
-        } else {
-          setBadgeStatus(result.publishBadge, 'skipped', 'skipped');
-        }
-
-        if (!shouldPublish && shouldPreview) {
-          result.messageCell.textContent = 'Preview completed';
-        } else if (shouldPublish) {
-          result.messageCell.textContent = 'Publish completed';
-        } else {
-          result.messageCell.textContent = 'Warm completed';
-        }
-      } catch (error) {
-        failed += 1;
-        if (result.warmBadge.textContent === 'running') {
-          setBadgeStatus(result.warmBadge, 'error', 'error');
-        }
-        if (result.previewBadge.textContent === 'running') {
-          setBadgeStatus(result.previewBadge, 'error', 'error');
-        }
-        if (result.publishBadge.textContent === 'running') {
-          setBadgeStatus(result.publishBadge, 'error', 'error');
-        }
-
-        result.messageCell.textContent = shortError(error);
-        appendLog(`Failed article ${item.id}: ${shortError(error)}`, 'error');
+    try {
+      if (shouldWarm) {
+        setBadgeStatus(result.warmBadge, 'running', 'running');
+        const warm = await warmArticle(item, config);
+        setBadgeStatus(result.warmBadge, 'ok', 'ok');
+        result.messageCell.textContent = `Warmed from ${warm.endpoint}`;
+        appendLog(`Warmed article ${item.id}.`, 'info');
+        warmed += 1;
+      } else {
+        setBadgeStatus(result.warmBadge, 'skipped', 'skipped');
       }
 
-      setSummary({
-        resolved: resolved.length,
-        warmed,
-        previewed,
-        published,
-        failed,
-      });
+      if (shouldPreview) {
+        setBadgeStatus(result.previewBadge, 'running', 'running');
+        await previewArticle(item, config);
+        setBadgeStatus(result.previewBadge, 'ok', 'ok');
+        appendLog(`Previewed /support/articles/${item.id}.`, 'info');
+        previewed += 1;
+      } else {
+        setBadgeStatus(result.previewBadge, 'skipped', 'skipped');
+      }
+
+      if (shouldPublish) {
+        setBadgeStatus(result.publishBadge, 'running', 'running');
+        await publishArticle(item, config);
+        setBadgeStatus(result.publishBadge, 'ok', 'ok');
+        appendLog(`Published /support/articles/${item.id}.`, 'info');
+        published += 1;
+      } else {
+        setBadgeStatus(result.publishBadge, 'skipped', 'skipped');
+      }
+
+      if (!shouldPublish && shouldPreview) {
+        result.messageCell.textContent = 'Preview completed';
+      } else if (shouldPublish) {
+        result.messageCell.textContent = 'Publish completed';
+      } else {
+        result.messageCell.textContent = 'Warm completed';
+      }
+    } catch (error) {
+      failed += 1;
+      if (result.warmBadge.textContent === 'running') {
+        setBadgeStatus(result.warmBadge, 'error', 'error');
+      }
+      if (result.previewBadge.textContent === 'running') {
+        setBadgeStatus(result.previewBadge, 'error', 'error');
+      }
+      if (result.publishBadge.textContent === 'running') {
+        setBadgeStatus(result.publishBadge, 'error', 'error');
+      }
+
+      result.messageCell.textContent = shortError(error);
+      appendLog(`Failed article ${item.id}: ${shortError(error)}`, 'error');
     }
+
+    setSummary({
+      resolved: resolved.length,
+      warmed,
+      previewed,
+      published,
+      failed,
+    });
+  };
+
+  try {
+    await resolved.reduce(
+      (chain, item) => chain.then(() => processItem(item)),
+      Promise.resolve(),
+    );
   } finally {
     setRunning(false);
     appendLog('Batch run finished.', 'info');
