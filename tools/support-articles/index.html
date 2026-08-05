@@ -1,100 +1,147 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Support Article Import</title>
-    <link rel="stylesheet" href="./app.css" />
-  </head>
-  <body>
-    <main class="support-import-app">
-      <section class="panel">
-        <h1>Support Article Import</h1>
-        <p class="help-text">
-          Paste one article per line. Each line can be either:
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Support Article Generator</title>
+  <link rel="stylesheet" href="./app.css">
+</head>
+<body>
+  <main class="support-app">
+    <header class="support-app__header">
+      <h1>Support Article Generator</h1>
+      <p>
+        Enter one article URL or article ID per line. The app will generate the
+        support article page path, trigger preview generation, and show page status.
+      </p>
+    </header>
+
+    <section class="support-app__panel">
+      <label for="article-input" class="support-app__label">
+        Article URLs or IDs
+      </label>
+      <textarea
+        id="article-input"
+        class="support-app__textarea"
+        placeholder="Examples:
+https://services.att.com/kmservices/v2/contents/000096905?app-id=gmarket
+https://www.business.att.com/support/supportcenter.html?content!000096905#topic_billingaccounts1
+000096905"
+        rows="10"
+      ></textarea>
+
+      <div class="support-app__actions">
+        <button id="pull-content" class="button button--primary" type="button">
+          Update / Pull Content
+        </button>
+        <button id="publish-selected" class="button button--secondary" type="button" disabled>
+          Publish Selected
+        </button>
+        <button id="publish-all" class="button button--secondary" type="button" disabled>
+          Publish All
+        </button>
+      </div>
+
+      <div id="app-status" class="support-app__status" aria-live="polite">
+        Ready
+      </div>
+    </section>
+
+    <section class="support-app__summary" aria-label="Job Summary">
+      <div class="summary-card">
+        <span class="summary-card__label">Total</span>
+        <strong id="summary-total" class="summary-card__value">0</strong>
+      </div>
+      <div class="summary-card">
+        <span class="summary-card__label">Preview Ready</span>
+        <strong id="summary-ready" class="summary-card__value">0</strong>
+      </div>
+      <div class="summary-card">
+        <span class="summary-card__label">Published</span>
+        <strong id="summary-published" class="summary-card__value">0</strong>
+      </div>
+      <div class="summary-card">
+        <span class="summary-card__label">Failed</span>
+        <strong id="summary-failed" class="summary-card__value">0</strong>
+      </div>
+    </section>
+
+    <section class="support-app__results">
+      <div class="support-app__results-header">
+        <h2>Article Status</h2>
+        <p>
+          Preview generation should create the transformed page on
+          <code>.aem.page</code>. Publish actions should promote selected pages to
+          <code>.aem.live</code>.
         </p>
-        <ul class="help-list">
-          <li>an article ID like <code>000101394</code></li>
-          <li>or a full support/article URL</li>
-        </ul>
+      </div>
 
-        <label for="article-input" class="field-label">Article IDs or URLs</label>
-        <textarea
-          id="article-input"
-          class="article-input"
-          rows="10"
-          placeholder="000101394
-https://www.business.att.com/support/article?id=000101395
-/support/articles/000101396"
-        ></textarea>
+      <div class="table-wrap">
+        <table class="support-table">
+          <thead>
+            <tr>
+              <th scope="col">
+                <input id="select-all-articles" type="checkbox" aria-label="Select all articles">
+              </th>
+              <th scope="col">Input</th>
+              <th scope="col">Article ID</th>
+              <th scope="col">Support Page Path</th>
+              <th scope="col">Preview URL</th>
+              <th scope="col">Pull / Preview Status</th>
+              <th scope="col">Publish Status</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="article-status-body">
+            <tr class="support-table__empty">
+              <td colspan="8">No articles processed yet.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
 
-        <div class="actions">
-          <button id="pull-btn" class="button primary" type="button">
-            Update / Pull Content
+    <template id="article-row-template">
+      <tr data-article-row>
+        <td>
+          <input type="checkbox" class="row-select" aria-label="Select article">
+        </td>
+        <td class="cell-input" data-field="input"></td>
+        <td class="cell-id" data-field="id"></td>
+        <td class="cell-path">
+          <code data-field="pagePath"></code>
+        </td>
+        <td class="cell-preview">
+          <a data-field="previewUrl" href="#" target="_blank" rel="noopener noreferrer">Open Preview</a>
+        </td>
+        <td class="cell-pull-status">
+          <span class="status-pill" data-field="pullStatus">Pending</span>
+        </td>
+        <td class="cell-publish-status">
+          <span class="status-pill" data-field="publishStatus">Not Published</span>
+        </td>
+        <td class="cell-actions">
+          <button type="button" class="button button--inline" data-action="pull">
+            Update
           </button>
-          <button id="publish-selected-btn" class="button secondary" type="button" disabled>
-            Publish Selected
+          <button type="button" class="button button--inline" data-action="publish" disabled>
+            Publish
           </button>
-          <button id="publish-all-btn" class="button secondary" type="button" disabled>
-            Publish All
-          </button>
-        </div>
-      </section>
+        </td>
+      </tr>
+    </template>
+  </main>
 
-      <section class="panel status-panel">
-        <div class="status-header">
-          <h2>Status</h2>
-          <span id="job-status-pill" class="status-pill idle">Idle</span>
-        </div>
-
-        <div id="summary" class="summary">
-          <div class="summary-item">
-            <span class="summary-label">Total</span>
-            <strong id="summary-total">0</strong>
-          </div>
-          <div class="summary-item">
-            <span class="summary-label">Pulled</span>
-            <strong id="summary-pulled">0</strong>
-          </div>
-          <div class="summary-item">
-            <span class="summary-label">Ready to Publish</span>
-            <strong id="summary-ready">0</strong>
-          </div>
-          <div class="summary-item">
-            <span class="summary-label">Published</span>
-            <strong id="summary-published">0</strong>
-          </div>
-          <div class="summary-item">
-            <span class="summary-label">Failed</span>
-            <strong id="summary-failed">0</strong>
-          </div>
-        </div>
-
-        <div class="table-wrap">
-          <table class="status-table">
-            <thead>
-              <tr>
-                <th>Select</th>
-                <th>Input</th>
-                <th>Article ID</th>
-                <th>Pull Status</th>
-                <th>Page Status</th>
-                <th>Preview</th>
-                <th>Publish</th>
-              </tr>
-            </thead>
-            <tbody id="status-table-body">
-              <tr>
-                <td colspan="7" class="empty-state">
-                  No articles processed yet.
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-    </main>
-
-    <script type="module" src="./app.js"></script>
-  </body>
+  <script>
+    window.SUPPORT_ARTICLES_APP_CONFIG = {
+      org: 'sudarsanpradeepkumar',
+      site: 'business-da',
+      ref: 'main',
+      pagePathPrefix: '/support/articles',
+      previewHost: 'https://main--business-da--sudarsanpradeepkumar.aem.page',
+      liveHost: 'https://main--business-da--sudarsanpradeepkumar.aem.live'
+    };
+  </script>
+  <script type="module" src="./app.js"></script>
+</body>
 </html>
