@@ -94,7 +94,7 @@ https://www.business.att.com/support/supportcenter.html?content!000096905#topic_
             </tr>
           </thead>
           <tbody id="article-status-body">
-            <tr class="support-table__empty">
+            <tr class="empty-state-row">
               <td colspan="8">No articles processed yet.</td>
             </tr>
           </tbody>
@@ -133,16 +133,8 @@ https://www.business.att.com/support/supportcenter.html?content!000096905#topic_
     </template>
   </main>
 
-  <script>
-    window.SUPPORT_ARTICLES_APP_CONFIG = {
-      org: 'sudarsanpradeepkumar',
-      site: 'business-da',
-      ref: 'main',
-      pagePathPrefix: '/support/articles',
-      previewHost: 'https://main--business-da--sudarsanpradeepkumar.aem.page',
-      liveHost: 'https://main--business-da--sudarsanpradeepkumar.aem.live'
-    };
-  </script>
+  <!-- app.js is expected to load ./app-config.json
+       and merge it with org/site/ref from the DA app URL -->
   <script type="module" src="./app.js"></script>
 </body>
 </html>

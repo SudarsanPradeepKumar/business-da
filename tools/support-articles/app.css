@@ -90,11 +90,6 @@ code {
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
-}
-
-.support-app__header,
-.support-app__panel,
-.support-app__results {
   padding: var(--spacing-5);
 }
 
@@ -214,6 +209,7 @@ code {
   background: #fff;
   color: var(--primary);
   border-color: #cfe0fb;
+  width: 100%;
 }
 
 .button--inline:hover:not(:disabled) {
@@ -222,38 +218,29 @@ code {
 
 .support-app__status {
   margin-top: var(--spacing-4);
+}
+
+.support-app__status.status-pill {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  min-height: 48px;
   padding: 14px 16px;
   border: 1px solid var(--neutral-border);
   border-left: 4px solid var(--border-strong);
   border-radius: var(--radius-md);
   background: var(--neutral-bg);
   color: var(--neutral-text);
+  font-size: 0.95rem;
   font-weight: 600;
+  line-height: 1.45;
+  white-space: normal;
 }
 
-.support-app__status--idle,
-.support-app__status--info {
-  background: var(--neutral-bg);
-  color: var(--neutral-text);
-  border-color: var(--neutral-border);
-}
-
-.support-app__status--working {
-  background: var(--warning-bg);
-  color: var(--warning-text);
-  border-color: var(--warning-border);
-}
-
-.support-app__status--success {
-  background: var(--success-bg);
-  color: var(--success-text);
-  border-color: var(--success-border);
-}
-
-.support-app__status--error {
-  background: var(--error-bg);
-  color: var(--error-text);
-  border-color: var(--error-border);
+.support-app__status.status-pill::before {
+  flex: 0 0 auto;
+  margin-top: 0.35em;
 }
 
 .support-app__summary {
@@ -309,7 +296,7 @@ code {
 
 .support-table {
   width: 100%;
-  min-width: 960px;
+  min-width: 1120px;
   border-collapse: collapse;
   table-layout: auto;
 }
@@ -338,7 +325,7 @@ code {
   background: #fbfcfe;
 }
 
-.support-table__empty td {
+.empty-state-row td {
   text-align: center;
   color: var(--text-muted);
   padding: 28px 16px;
@@ -360,44 +347,48 @@ code {
   word-break: break-word;
 }
 
-.cell-input,
-.cell-id,
+.cell-source,
 .cell-path,
-.cell-preview,
-.cell-pull-status,
-.cell-publish-status,
-.cell-actions {
-  color: var(--text);
-}
-
-.cell-input,
-.cell-path,
-.cell-preview {
+.cell-preview-link {
   min-width: 180px;
+  color: var(--text);
 }
 
 .cell-id {
   min-width: 110px;
+  color: var(--text);
   font-weight: 700;
 }
 
-.cell-preview a {
-  word-break: break-word;
+.cell-status {
+  min-width: 180px;
+  color: var(--text);
 }
 
 .cell-actions {
-  min-width: 140px;
+  min-width: 160px;
 }
 
-.cell-actions .button {
-  display: inline-flex;
-  justify-content: center;
-  width: 100%;
-  margin-bottom: 8px;
+.cell-actions .button + .button {
+  margin-top: 8px;
 }
 
-.cell-actions .button:last-child {
-  margin-bottom: 0;
+.cell-preview-link a,
+.row-link a {
+  word-break: break-word;
+}
+
+.row-link {
+  margin-top: 8px;
+  font-size: 0.875rem;
+  color: var(--text-soft);
+}
+
+.row-error {
+  margin-top: 8px;
+  font-size: 0.875rem;
+  color: var(--error-text);
+  line-height: 1.4;
 }
 
 .row-select,
@@ -431,6 +422,8 @@ code {
   opacity: 0.85;
 }
 
+/* Current app.js tone classes */
+.status-pill.tone-neutral,
 .status-pill--pending,
 .status-pill--idle,
 .status-pill[data-state="pending"],
@@ -440,6 +433,7 @@ code {
   border-color: var(--neutral-border);
 }
 
+.status-pill.tone-working,
 .status-pill--working,
 .status-pill--processing,
 .status-pill--generating,
@@ -453,6 +447,7 @@ code {
   border-color: var(--warning-border);
 }
 
+.status-pill.tone-success,
 .status-pill--ready,
 .status-pill--success,
 .status-pill[data-state="ready"],
@@ -462,13 +457,15 @@ code {
   border-color: var(--success-border);
 }
 
-.status-pill--published,
-.status-pill[data-state="published"] {
-  background: #e7f8ec;
-  color: #10633f;
-  border-color: #b7e6c8;
+.status-pill.tone-warning,
+.status-pill--warning,
+.status-pill[data-state="warning"] {
+  background: var(--warning-bg);
+  color: var(--warning-text);
+  border-color: var(--warning-border);
 }
 
+.status-pill.tone-error,
 .status-pill--failed,
 .status-pill--error,
 .status-pill[data-state="failed"],
@@ -476,6 +473,14 @@ code {
   background: var(--error-bg);
   color: var(--error-text);
   border-color: var(--error-border);
+}
+
+/* Keep legacy published styling if reused later */
+.status-pill--published,
+.status-pill[data-state="published"] {
+  background: #e7f8ec;
+  color: #10633f;
+  border-color: #b7e6c8;
 }
 
 @media (max-width: 1080px) {

@@ -8,6 +8,12 @@
  * - Show preview-generation status only
  * - Allow one-by-one or bulk publish to .aem.live
  *
+ * Config resolution order:
+ * 1. URL params: org, site, ref, pagePathPrefix/pagePrefix, adminHost/adminBase,
+ *    previewHost/previewBase, liveHost/liveBase
+ * 2. ./app-config.json
+ * 3. Built-in defaults
+ *
  * Expected HTML ids:
  * - article-input
  * - pull-content
@@ -22,22 +28,106 @@
  * - select-all-articles (optional)
  */
 
-const APP_CONFIG = (() => {
+let APP_CONFIG = null;
+
+const STATE = {
+  busy: false,
+  rows: new Map(),
+  order: [],
+};
+
+const DOM = {};
+
+document.addEventListener('DOMContentLoaded', () => {
+  void bootstrap();
+});
+
+async function bootstrap() {
+  try {
+    cacheDom();
+    validateDom();
+    bindEvents();
+    renderEmptyState();
+    updateSummary();
+    disableAllActions();
+    setAppStatus('Loading app configuration…', 'working');
+
+    APP_CONFIG = await resolveAppConfig();
+
+    if (!APP_CONFIG.org || !APP_CONFIG.site || !APP_CONFIG.ref) {
+      setAppStatus('Missing org/site/ref in the DA app URL or app-config.json.', 'error');
+      disableAllActions();
+      return;
+    }
+
+    setAppStatus(
+      `Ready for ${APP_CONFIG.org}/${APP_CONFIG.site}@${APP_CONFIG.ref}`,
+      'neutral',
+    );
+    syncControls();
+  } catch (error) {
+    console.error('Support Article Generator failed to initialize.', error);
+    if (DOM.status) {
+      setAppStatus(error.message || 'Failed to initialize the app.', 'error');
+    }
+  }
+}
+
+async function resolveAppConfig() {
+  const fileConfig = await loadJsonConfig('./app-config.json');
   const params = new URLSearchParams(window.location.search);
-  const overrides = window.SUPPORT_ARTICLES_APP_CONFIG || {};
 
-  const org = overrides.org || params.get('org') || '';
-  const site = overrides.site || params.get('site') || '';
-  const ref = overrides.ref || params.get('ref') || 'main';
+  const org = firstNonEmpty(params.get('org'), fileConfig.org, '');
+  const site = firstNonEmpty(params.get('site'), fileConfig.site, '');
+  const ref = firstNonEmpty(params.get('ref'), fileConfig.ref, 'main');
 
-  const pagePrefix = normalizePagePrefix(overrides.pagePrefix || '/support/articles');
-  const adminBase = (overrides.adminBase || 'https://admin.hlx.page').replace(/\/$/, '');
+  const pagePrefix = normalizePagePrefix(
+    firstNonEmpty(
+      params.get('pagePathPrefix'),
+      params.get('pagePrefix'),
+      fileConfig.pagePathPrefix,
+      fileConfig.pagePrefix,
+      '/support/articles',
+    ),
+  );
 
-  const previewBase = (overrides.previewBase
-    || `https://${ref}--${site}--${org}.aem.page`).replace(/\/$/, '');
+  const adminBase = normalizeBaseUrl(
+    firstNonEmpty(
+      params.get('adminHost'),
+      params.get('adminBase'),
+      fileConfig.adminHost,
+      fileConfig.adminBase,
+      'https://admin.hlx.page',
+    ),
+  );
 
-  const liveBase = (overrides.liveBase
-    || `https://${ref}--${site}--${org}.aem.live`).replace(/\/$/, '');
+  const derivedPreviewBase = (org && site && ref)
+    ? `https://${ref}--${site}--${org}.aem.page`
+    : '';
+
+  const derivedLiveBase = (org && site && ref)
+    ? `https://${ref}--${site}--${org}.aem.live`
+    : '';
+
+  const previewBase = normalizeBaseUrl(
+    firstNonEmpty(
+      params.get('previewHost'),
+      params.get('previewBase'),
+      fileConfig.previewHost,
+      fileConfig.previewBase,
+      derivedPreviewBase,
+    ),
+  );
+
+  const liveBase = normalizeBaseUrl(
+    firstNonEmpty(
+      params.get('liveHost'),
+      params.get('liveBase'),
+      fileConfig.liveHost,
+      fileConfig.liveBase,
+      derivedLiveBase,
+    ),
+  );
 
   return {
     org,
@@ -48,36 +138,31 @@ const APP_CONFIG = (() => {
     previewBase,
     liveBase,
   };
-})();
+}
 
-const STATE = {
-  busy: false,
-  rows: new Map(),
-  order: [],
-};
+async function loadJsonConfig(relativePath) {
+  try {
+    const url = new URL(relativePath, window.location.href).toString();
+    const response = await fetch(url, { cache: 'no-store' });
 
-const DOM = {};
+    if (response.status === 404) {
+      return {};
+    }
 
-document.addEventListener('DOMContentLoaded', init);
+    if (!response.ok) {
+      throw new Error(`Failed to load app config: ${response.status} ${response.statusText}`);
+    }
 
-function init() {
-  cacheDom();
-  validateDom();
-  bindEvents();
-  renderEmptyState();
-  updateSummary();
-  syncControls();
-
-  if (!APP_CONFIG.org || !APP_CONFIG.site || !APP_CONFIG.ref) {
-    setAppStatus('Missing org/site/ref in the DA app URL.', 'error');
-    disableAllActions();
-    return;
+    return await response.json();
+  } catch (error) {
+    console.warn('Proceeding without app-config.json overrides.', error);
+    return {};
   }
+}
 
-  setAppStatus(
-    `Ready for ${APP_CONFIG.org}/${APP_CONFIG.site}@${APP_CONFIG.ref}`,
-    'neutral',
-  );
+function firstNonEmpty(...values) {
+  const match = values.find((value) => String(value ?? '').trim() !== '');
+  return match ?? '';
 }
 
 function cacheDom() {
@@ -112,16 +197,16 @@ function validateDom() {
 
 function bindEvents() {
   DOM.input.addEventListener('input', syncControls);
-  DOM.pullBtn.addEventListener('click', onPullContentClick);
-  DOM.publishSelectedBtn.addEventListener('click', onPublishSelectedClick);
-  DOM.publishAllBtn.addEventListener('click', onPublishAllClick);
+  DOM.pullBtn.addEventListener('click', () => { void onPullContentClick(); });
+  DOM.publishSelectedBtn.addEventListener('click', () => { void onPublishSelectedClick(); });
+  DOM.publishAllBtn.addEventListener('click', () => { void onPublishAllClick(); });
 
   if (DOM.selectAll) {
     DOM.selectAll.addEventListener('change', onSelectAllChange);
   }
 
   DOM.tbody.addEventListener('change', onTableChange);
-  DOM.tbody.addEventListener('click', onTableClick);
+  DOM.tbody.addEventListener('click', (event) => { void onTableClick(event); });
 }
 
 function pickById(...ids) {
@@ -140,6 +225,10 @@ function normalizePath(path) {
   return value.startsWith('/') ? value : `/${value}`;
 }
 
+function normalizeBaseUrl(value) {
+  return String(value || '').trim().replace(/\/+$/, '');
+}
+
 function escapeHtml(value) {
   return String(value ?? '')
     .replace(/&/g, '&amp;')
@@ -152,7 +241,7 @@ function escapeHtml(value) {
 function setAppStatus(message, tone = 'neutral') {
   DOM.status.textContent = message;
   DOM.status.dataset.tone = tone;
-  DOM.status.className = `status-pill tone-${tone}`;
+  DOM.status.className = `support-app__status status-pill tone-${tone}`;
 }
 
 function disableAllActions() {
@@ -163,19 +252,19 @@ function disableAllActions() {
 }
 
 function syncControls() {
+  const hasConfig = !!(APP_CONFIG && APP_CONFIG.org && APP_CONFIG.site && APP_CONFIG.ref);
   const hasInput = !!DOM.input.value.trim();
   const rows = getRows();
 
   const readyRows = rows.filter(isPublishableRow);
   const selectedReadyRows = rows.filter((row) => row.selected && isPublishableRow(row));
 
-  DOM.pullBtn.disabled = STATE.busy || !hasInput || !APP_CONFIG.org || !APP_CONFIG.site || !APP_CONFIG.ref;
+  DOM.pullBtn.disabled = STATE.busy || !hasInput || !hasConfig;
   DOM.publishSelectedBtn.disabled = STATE.busy || selectedReadyRows.length === 0;
   DOM.publishAllBtn.disabled = STATE.busy || readyRows.length === 0;
 
   if (DOM.selectAll) {
-    const selectableRows = rows.filter((row) => !row.invalid && !row.duplicate && row.previewReady && !row.published);
-
+    const selectableRows = rows.filter((row) => isPublishableRow(row));
     DOM.selectAll.disabled = STATE.busy || selectableRows.length === 0;
 
     const selectedCount = selectableRows.filter((row) => row.selected).length;
@@ -190,7 +279,9 @@ function updateSummary() {
   const total = rows.length;
   const ready = rows.filter((row) => row.previewReady).length;
   const published = rows.filter((row) => row.published).length;
-  const failed = rows.filter((row) => row.previewTone === 'error' || row.publishTone === 'error' || row.invalid).length;
+  const failed = rows.filter(
+    (row) => row.previewTone === 'error' || row.publishTone === 'error' || row.invalid,
+  ).length;
 
   if (DOM.summaryTotal) DOM.summaryTotal.textContent = total;
   if (DOM.summaryReady) DOM.summaryReady.textContent = ready;
@@ -201,7 +292,10 @@ function updateSummary() {
 function renderEmptyState() {
   DOM.tbody.innerHTML = `
     <tr class="empty-state-row">
-      <td colspan="7">Enter one support article URL or article ID per line, then click <strong>Update / Pull Content</strong>.</td>
+      <td colspan="8">
+        Enter one support article URL or article ID per line, then click
+        <strong>Generate / Update Preview</strong>.
+      </td>
     </tr>
   `;
 }
@@ -297,6 +391,10 @@ function createDuplicateRow(source, articleId, index) {
   };
 }
 
+function isPreviewableRow(row) {
+  return !!row && !row.invalid && !row.duplicate;
+}
+
 function isPublishableRow(row) {
   return !!row && row.previewReady && !row.published && !row.invalid && !row.duplicate;
 }
@@ -339,24 +437,19 @@ function extractArticleId(input) {
   const value = String(input || '').trim();
   if (!value) return '';
 
-  // raw article id
   if (!/^https?:\/\//i.test(value) && /^[A-Za-z0-9_-]+$/.test(value)) {
     return value;
   }
 
-  // ATT support center style: ?content!000096905
   const contentBangMatch = value.match(/content!([A-Za-z0-9_-]+)/i);
   if (contentBangMatch) return contentBangMatch[1];
 
-  // generic id=... inside a URL-like string
   const queryIdMatch = value.match(/[?&]id=([A-Za-z0-9_-]+)/i);
   if (queryIdMatch) return queryIdMatch[1];
 
-  // support article page style
   const supportArticleMatch = value.match(/\/support\/articles\/([A-Za-z0-9_-]+)/i);
   if (supportArticleMatch) return supportArticleMatch[1];
 
-  // source API style
   const contentsMatch = value.match(/\/contents\/([A-Za-z0-9_-]+)/i);
   if (contentsMatch) return contentsMatch[1];
 
@@ -376,10 +469,9 @@ function extractArticleId(input) {
     const tail = segments[segments.length - 1];
     if (tail && /^[A-Za-z0-9_-]{6,}$/.test(tail)) return tail;
   } catch (e) {
-    // fall through
+    // no-op
   }
 
-  // last chance: pick a long numeric token from the line
   const numericMatch = value.match(/\b\d{6,}\b/);
   if (numericMatch) return numericMatch[0];
 
@@ -409,14 +501,15 @@ function renderRow(row) {
 
 function renderRowMarkup(row) {
   const previewLink = row.previewReady && row.previewUrl
-    ? `<a href="${escapeHtml(row.previewUrl)}" target="_blank" rel="noopener noreferrer">Open preview</a>`
+    ? `<a href="${escapeHtml(row.previewUrl)}" target="_blank" rel="noopener noreferrer">Open Preview</a>`
     : '—';
 
   const liveLink = row.published && row.liveUrl
-    ? `<a href="${escapeHtml(row.liveUrl)}" target="_blank" rel="noopener noreferrer">Open live</a>`
+    ? `<a href="${escapeHtml(row.liveUrl)}" target="_blank" rel="noopener noreferrer">Open Live</a>`
     : '—';
 
   const publishDisabled = !isPublishableRow(row) || STATE.busy;
+  const pullDisabled = !isPreviewableRow(row) || STATE.busy;
   const checkboxDisabled = !isPublishableRow(row) || STATE.busy;
 
   return `
@@ -432,10 +525,8 @@ function renderRowMarkup(row) {
       </td>
       <td class="cell-source">${escapeHtml(row.source)}</td>
       <td class="cell-id"><code>${escapeHtml(row.articleId)}</code></td>
-      <td class="cell-path">
-        ${row.pagePath ? `<div><code>${escapeHtml(row.pagePath)}</code></div>` : '<div>—</div>'}
-        <div class="row-link">${previewLink}</div>
-      </td>
+      <td class="cell-path">${row.pagePath ? `<code>${escapeHtml(row.pagePath)}</code>` : '—'}</td>
+      <td class="cell-preview-link">${previewLink}</td>
       <td class="cell-status">
         ${renderStatusPill(row.previewState, row.previewTone)}
         ${row.error ? `<div class="row-error">${escapeHtml(row.error)}</div>` : ''}
@@ -447,7 +538,16 @@ function renderRowMarkup(row) {
       <td class="cell-actions">
         <button
           type="button"
-          class="secondary-action publish-row"
+          class="button button--inline"
+          data-action="pull-row"
+          data-row-key="${escapeHtml(row.key)}"
+          ${pullDisabled ? 'disabled' : ''}
+        >
+          Update Preview
+        </button>
+        <button
+          type="button"
+          class="button button--inline"
           data-action="publish-row"
           data-row-key="${escapeHtml(row.key)}"
           ${publishDisabled ? 'disabled' : ''}
@@ -492,18 +592,25 @@ function onTableChange(event) {
   syncControls();
 }
 
-function onTableClick(event) {
-  const button = event.target.closest('[data-action="publish-row"]');
+async function onTableClick(event) {
+  const button = event.target.closest('[data-action]');
   if (!button) return;
 
   const row = getRow(button.dataset.rowKey);
   if (!row) return;
 
-  publishRows([row]);
+  if (button.dataset.action === 'pull-row') {
+    await previewRows([row], `Updating preview for ${row.articleId}...`);
+    return;
+  }
+
+  if (button.dataset.action === 'publish-row') {
+    await publishRows([row], `Publishing ${row.articleId} to live...`);
+  }
 }
 
 async function onPullContentClick() {
-  if (STATE.busy) return;
+  if (STATE.busy || !APP_CONFIG) return;
 
   const parsedRows = parseInputLines(DOM.input.value);
 
@@ -518,35 +625,13 @@ async function onPullContentClick() {
     return;
   }
 
-  const validRows = getRows().filter((row) => !row.invalid && !row.duplicate);
+  const validRows = getRows().filter(isPreviewableRow);
   if (!validRows.length) {
     setAppStatus('No valid article IDs were found in the submitted input.', 'error');
     return;
   }
 
-  STATE.busy = true;
-  syncControls();
-  setAppStatus(`Generating ${validRows.length} support article preview page(s)...`, 'working');
-
-  for (const row of validRows) {
-    // eslint-disable-next-line no-await-in-loop
-    await generatePreviewPage(row);
-    renderRow(row);
-    updateSummary();
-    syncControls();
-  }
-
-  STATE.busy = false;
-  syncControls();
-
-  const readyCount = getRows().filter((row) => row.previewReady).length;
-  const failedCount = getRows().filter((row) => row.previewTone === 'error' || row.invalid).length;
-
-  if (failedCount > 0) {
-    setAppStatus(`Completed with ${readyCount} ready and ${failedCount} failed.`, 'warning');
-  } else {
-    setAppStatus(`Completed successfully. ${readyCount} support article page(s) are ready on preview.`, 'success');
-  }
+  await previewRows(validRows, `Generating ${validRows.length} support article preview page(s)...`);
 }
 
 async function onPublishSelectedClick() {
@@ -554,11 +639,11 @@ async function onPublishSelectedClick() {
 
   const selectedRows = getRows().filter((row) => row.selected && isPublishableRow(row));
   if (!selectedRows.length) {
-    setAppStatus('Select at least one ready article before publishing.', 'warning');
+    setAppStatus('Select at least one preview-ready article before publishing.', 'warning');
     return;
   }
 
-  await publishRows(selectedRows);
+  await publishRows(selectedRows, `Publishing ${selectedRows.length} selected article(s) to live...`);
 }
 
 async function onPublishAllClick() {
@@ -570,49 +655,85 @@ async function onPublishAllClick() {
     return;
   }
 
-  await publishRows(readyRows);
+  await publishRows(readyRows, `Publishing ${readyRows.length} article(s) to live...`);
 }
 
-async function generatePreviewPage(row) {
-  row.previewState = 'Generating preview';
-  row.previewTone = 'working';
-  row.publishState = 'Not published';
-  row.publishTone = 'neutral';
-  row.error = '';
-  row.previewReady = false;
-  row.published = false;
+async function previewRows(rows, startMessage) {
+  if (!rows.length) return;
 
-  try {
-    const response = await postAdminAction(row.previewAdminUrl);
+  STATE.busy = true;
+  syncControls();
+  setAppStatus(startMessage, 'working');
 
-    if (!response.ok) {
-      throw new Error(await buildResponseError(response, 'Preview generation failed'));
+  for (const row of rows) {
+    row.previewState = 'Generating preview';
+    row.previewTone = 'working';
+    row.publishState = row.published ? row.publishState : 'Not published';
+    row.publishTone = row.published ? row.publishTone : 'neutral';
+    row.error = '';
+    row.previewReady = false;
+    row.published = false;
+    row.selected = false;
+    renderRow(row);
+
+    try {
+      // eslint-disable-next-line no-await-in-loop
+      const response = await postAdminAction(row.previewAdminUrl);
+
+      if (!response.ok) {
+        throw new Error(await buildResponseError(response, 'Preview generation failed'));
+      }
+
+      row.previewReady = true;
+      row.previewState = 'Ready on preview';
+      row.previewTone = 'success';
+      row.publishState = 'Ready to publish';
+      row.publishTone = 'success';
+    } catch (error) {
+      row.previewReady = false;
+      row.previewState = 'Failed';
+      row.previewTone = 'error';
+      row.publishState = 'Blocked';
+      row.publishTone = 'neutral';
+      row.error = error.message || 'Unknown preview error';
     }
 
-    row.previewReady = true;
-    row.previewState = 'Ready on preview';
-    row.previewTone = 'success';
-    row.publishState = 'Ready to publish';
-    row.publishTone = 'success';
-  } catch (error) {
-    row.previewReady = false;
-    row.previewState = 'Failed';
-    row.previewTone = 'error';
-    row.publishState = 'Blocked';
-    row.publishTone = 'neutral';
-    row.error = error.message || 'Unknown preview error';
+    renderRow(row);
+    updateSummary();
+    syncControls();
+  }
+
+  STATE.busy = false;
+  syncControls();
+
+  const readyCount = rows.filter((row) => row.previewReady).length;
+  const failedCount = rows.length - readyCount;
+
+  if (failedCount > 0) {
+    setAppStatus(
+      `Preview generation completed with ${readyCount} ready and ${failedCount} failed.`,
+      'warning',
+    );
+  } else {
+    setAppStatus(
+      `Preview generation completed successfully. ${readyCount} article page(s) are ready on .aem.page.`,
+      'success',
+    );
   }
 }
 
-async function publishRows(rows) {
+async function publishRows(rows, startMessage) {
+  if (!rows.length) return;
+
   STATE.busy = true;
   syncControls();
-  setAppStatus(`Publishing ${rows.length} support article page(s) to live...`, 'working');
+  setAppStatus(startMessage, 'working');
 
   for (const row of rows) {
     row.publishState = 'Publishing';
     row.publishTone = 'working';
     row.error = '';
+    row.selected = false;
     renderRow(row);
 
     try {
@@ -624,7 +745,6 @@ async function publishRows(rows) {
       }
 
       row.published = true;
-      row.selected = false;
       row.publishState = 'Published on live';
       row.publishTone = 'success';
     } catch (error) {
@@ -646,9 +766,12 @@ async function publishRows(rows) {
   const failedCount = rows.length - publishedCount;
 
   if (failedCount > 0) {
-    setAppStatus(`Publish completed with ${publishedCount} success and ${failedCount} failure(s).`, 'warning');
+    setAppStatus(
+      `Publish completed with ${publishedCount} success and ${failedCount} failure(s).`,
+      'warning',
+    );
   } else {
-    setAppStatus(`Published ${publishedCount} support article page(s) to live.`, 'success');
+    setAppStatus(`Published ${publishedCount} support article page(s) to .aem.live.`, 'success');
   }
 }
 
