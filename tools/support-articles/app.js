@@ -1,552 +1,689 @@
-const STORAGE_KEY = 'support-import-app-config-v1';
+/**
+ * DA App: Support Article Generator
+ *
+ * Finalized architecture:
+ * - Parse one URL/ID per line
+ * - Build /support/articles/<articleId>
+ * - POST preview to admin.hlx.page to invoke json2html + Edge Function + Mustache
+ * - Show preview-generation status only
+ * - Allow one-by-one or bulk publish to .aem.live
+ *
+ * Expected HTML ids:
+ * - article-input
+ * - pull-content
+ * - publish-selected
+ * - publish-all
+ * - app-status
+ * - summary-total
+ * - summary-ready
+ * - summary-published
+ * - summary-failed
+ * - article-status-body
+ * - select-all-articles (optional)
+ */
 
-const DEFAULTS = {
-  org: '',
-  site: '',
-  branch: 'main',
-  edgeEndpointTemplate: 'https://edgefunction-p148597-e1937574-edge-api.adobeaemcloud.com/support/articles?id={id}',
-  previewEndpointTemplate: 'https://admin.hlx.page/preview/{org}/{site}/{branch}/support/articles/{id}',
-  publishEndpointTemplate: 'https://admin.hlx.page/live/{org}/{site}/{branch}/support/articles/{id}',
-};
-
-const els = {
-  org: document.getElementById('org'),
-  site: document.getElementById('site'),
-  branch: document.getElementById('branch'),
-  edgeEndpointTemplate: document.getElementById('edgeEndpointTemplate'),
-  previewEndpointTemplate: document.getElementById('previewEndpointTemplate'),
-  publishEndpointTemplate: document.getElementById('publishEndpointTemplate'),
-  adminToken: document.getElementById('adminToken'),
-  articleInput: document.getElementById('articleInput'),
-  optionWarm: document.getElementById('optionWarm'),
-  optionPreview: document.getElementById('optionPreview'),
-  optionPublish: document.getElementById('optionPublish'),
-  parseBtn: document.getElementById('parseBtn'),
-  runBtn: document.getElementById('runBtn'),
-  clearBtn: document.getElementById('clearBtn'),
-  resolvedIds: document.getElementById('resolvedIds'),
-  resultsBody: document.getElementById('resultsBody'),
-  logOutput: document.getElementById('logOutput'),
-  summaryResolved: document.getElementById('summaryResolved'),
-  summaryWarmed: document.getElementById('summaryWarmed'),
-  summaryPreviewed: document.getElementById('summaryPreviewed'),
-  summaryPublished: document.getElementById('summaryPublished'),
-  summaryFailed: document.getElementById('summaryFailed'),
-};
-
-function appendLog(message, level = 'info') {
-  const timestamp = new Date().toISOString();
-  const prefix = level.toUpperCase().padEnd(5, ' ');
-  els.logOutput.textContent = `${els.logOutput.textContent}\n[${timestamp}] ${prefix} ${message}`.trim();
-  els.logOutput.scrollTop = els.logOutput.scrollHeight;
-}
-
-function loadStoredConfig() {
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-  } catch (e) {
-    return {};
-  }
-}
-
-function getQueryConfig() {
+const APP_CONFIG = (() => {
   const params = new URLSearchParams(window.location.search);
+  const overrides = window.SUPPORT_ARTICLES_APP_CONFIG || {};
+
+  const org = overrides.org || params.get('org') || '';
+  const site = overrides.site || params.get('site') || '';
+  const ref = overrides.ref || params.get('ref') || 'main';
+
+  const pagePrefix = normalizePagePrefix(overrides.pagePrefix || '/support/articles');
+  const adminBase = (overrides.adminBase || 'https://admin.hlx.page').replace(/\/$/, '');
+
+  const previewBase = (overrides.previewBase
+    || `https://${ref}--${site}--${org}.aem.page`).replace(/\/$/, '');
+
+  const liveBase = (overrides.liveBase
+    || `https://${ref}--${site}--${org}.aem.live`).replace(/\/$/, '');
+
   return {
-    org: params.get('org') || '',
-    site: params.get('site') || '',
-    branch: params.get('ref') || params.get('branch') || '',
-    edgeEndpointTemplate: params.get('edgeEndpointTemplate') || '',
-    previewEndpointTemplate: params.get('previewEndpointTemplate') || '',
-    publishEndpointTemplate: params.get('publishEndpointTemplate') || '',
+    org,
+    site,
+    ref,
+    pagePrefix,
+    adminBase,
+    previewBase,
+    liveBase,
   };
-}
+})();
 
-function loadConfig() {
-  return {
-    ...DEFAULTS,
-    ...loadStoredConfig(),
-    ...getQueryConfig(),
-  };
-}
+const STATE = {
+  busy: false,
+  rows: new Map(),
+  order: [],
+};
 
-function saveConfig(config) {
-  const storable = {
-    org: config.org,
-    site: config.site,
-    branch: config.branch,
-    edgeEndpointTemplate: config.edgeEndpointTemplate,
-    previewEndpointTemplate: config.previewEndpointTemplate,
-    publishEndpointTemplate: config.publishEndpointTemplate,
-  };
+const DOM = {};
 
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(storable));
-}
+document.addEventListener('DOMContentLoaded', init);
 
-function writeConfigToForm(config) {
-  els.org.value = config.org || '';
-  els.site.value = config.site || '';
-  els.branch.value = config.branch || DEFAULTS.branch;
-  els.edgeEndpointTemplate.value = config.edgeEndpointTemplate || DEFAULTS.edgeEndpointTemplate;
-  els.previewEndpointTemplate.value = config.previewEndpointTemplate
-    || DEFAULTS.previewEndpointTemplate;
-  els.publishEndpointTemplate.value = config.publishEndpointTemplate
-    || DEFAULTS.publishEndpointTemplate;
-}
+function init() {
+  cacheDom();
+  validateDom();
+  bindEvents();
+  renderEmptyState();
+  updateSummary();
+  syncControls();
 
-function readConfigFromForm() {
-  return {
-    org: els.org.value.trim(),
-    site: els.site.value.trim(),
-    branch: els.branch.value.trim() || 'main',
-    edgeEndpointTemplate: els.edgeEndpointTemplate.value.trim(),
-    previewEndpointTemplate: els.previewEndpointTemplate.value.trim(),
-    publishEndpointTemplate: els.publishEndpointTemplate.value.trim(),
-    adminToken: els.adminToken.value.trim(),
-  };
-}
-
-function normalizeArticleId(candidate) {
-  const value = String(candidate || '').trim().replace(/[?#].*$/, '');
-  return /^[A-Za-z0-9_-]{6,}$/.test(value) ? value : '';
-}
-
-function extractArticleId(rawValue) {
-  const raw = String(rawValue || '').trim();
-  if (!raw) return '';
-
-  const contentBang = raw.match(/content!([A-Za-z0-9_-]+)/i);
-  if (contentBang) {
-    return normalizeArticleId(contentBang[1]);
+  if (!APP_CONFIG.org || !APP_CONFIG.site || !APP_CONFIG.ref) {
+    setAppStatus('Missing org/site/ref in the DA app URL.', 'error');
+    disableAllActions();
+    return;
   }
 
-  if (/^[A-Za-z0-9_-]{6,}$/.test(raw) && !/^https?:\/\//i.test(raw)) {
-    return normalizeArticleId(raw);
+  setAppStatus(
+    `Ready for ${APP_CONFIG.org}/${APP_CONFIG.site}@${APP_CONFIG.ref}`,
+    'neutral',
+  );
+}
+
+function cacheDom() {
+  DOM.input = pickById('article-input');
+  DOM.pullBtn = pickById('pull-content');
+  DOM.publishSelectedBtn = pickById('publish-selected');
+  DOM.publishAllBtn = pickById('publish-all');
+  DOM.status = pickById('app-status');
+  DOM.summaryTotal = pickById('summary-total');
+  DOM.summaryReady = pickById('summary-ready');
+  DOM.summaryPublished = pickById('summary-published');
+  DOM.summaryFailed = pickById('summary-failed');
+  DOM.tbody = pickById('article-status-body');
+  DOM.selectAll = pickById('select-all-articles');
+}
+
+function validateDom() {
+  const required = [
+    ['article-input', DOM.input],
+    ['pull-content', DOM.pullBtn],
+    ['publish-selected', DOM.publishSelectedBtn],
+    ['publish-all', DOM.publishAllBtn],
+    ['app-status', DOM.status],
+    ['article-status-body', DOM.tbody],
+  ];
+
+  const missing = required.filter(([, el]) => !el).map(([id]) => id);
+  if (missing.length) {
+    throw new Error(`Missing required HTML element(s): ${missing.join(', ')}`);
+  }
+}
+
+function bindEvents() {
+  DOM.input.addEventListener('input', syncControls);
+  DOM.pullBtn.addEventListener('click', onPullContentClick);
+  DOM.publishSelectedBtn.addEventListener('click', onPublishSelectedClick);
+  DOM.publishAllBtn.addEventListener('click', onPublishAllClick);
+
+  if (DOM.selectAll) {
+    DOM.selectAll.addEventListener('change', onSelectAllChange);
   }
 
-  try {
-    const url = new URL(raw);
+  DOM.tbody.addEventListener('change', onTableChange);
+  DOM.tbody.addEventListener('click', onTableClick);
+}
 
-    if (url.searchParams.get('id')) {
-      return normalizeArticleId(url.searchParams.get('id'));
+function pickById(...ids) {
+  return ids.map((id) => document.getElementById(id)).find(Boolean) || null;
+}
+
+function normalizePagePrefix(value) {
+  const prefix = String(value || '/support/articles').trim();
+  if (!prefix) return '/support/articles';
+  return `/${prefix.replace(/^\/+/, '').replace(/\/+$/, '')}`;
+}
+
+function normalizePath(path) {
+  const value = String(path || '').trim();
+  if (!value) return '/';
+  return value.startsWith('/') ? value : `/${value}`;
+}
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function setAppStatus(message, tone = 'neutral') {
+  DOM.status.textContent = message;
+  DOM.status.dataset.tone = tone;
+  DOM.status.className = `status-pill tone-${tone}`;
+}
+
+function disableAllActions() {
+  DOM.pullBtn.disabled = true;
+  DOM.publishSelectedBtn.disabled = true;
+  DOM.publishAllBtn.disabled = true;
+  if (DOM.selectAll) DOM.selectAll.disabled = true;
+}
+
+function syncControls() {
+  const hasInput = !!DOM.input.value.trim();
+  const rows = getRows();
+
+  const readyRows = rows.filter(isPublishableRow);
+  const selectedReadyRows = rows.filter((row) => row.selected && isPublishableRow(row));
+
+  DOM.pullBtn.disabled = STATE.busy || !hasInput || !APP_CONFIG.org || !APP_CONFIG.site || !APP_CONFIG.ref;
+  DOM.publishSelectedBtn.disabled = STATE.busy || selectedReadyRows.length === 0;
+  DOM.publishAllBtn.disabled = STATE.busy || readyRows.length === 0;
+
+  if (DOM.selectAll) {
+    const selectableRows = rows.filter((row) => !row.invalid && !row.duplicate && row.previewReady && !row.published);
+
+    DOM.selectAll.disabled = STATE.busy || selectableRows.length === 0;
+
+    const selectedCount = selectableRows.filter((row) => row.selected).length;
+    DOM.selectAll.checked = selectableRows.length > 0 && selectedCount === selectableRows.length;
+    DOM.selectAll.indeterminate = selectedCount > 0 && selectedCount < selectableRows.length;
+  }
+}
+
+function updateSummary() {
+  const rows = getRows();
+
+  const total = rows.length;
+  const ready = rows.filter((row) => row.previewReady).length;
+  const published = rows.filter((row) => row.published).length;
+  const failed = rows.filter((row) => row.previewTone === 'error' || row.publishTone === 'error' || row.invalid).length;
+
+  if (DOM.summaryTotal) DOM.summaryTotal.textContent = total;
+  if (DOM.summaryReady) DOM.summaryReady.textContent = ready;
+  if (DOM.summaryPublished) DOM.summaryPublished.textContent = published;
+  if (DOM.summaryFailed) DOM.summaryFailed.textContent = failed;
+}
+
+function renderEmptyState() {
+  DOM.tbody.innerHTML = `
+    <tr class="empty-state-row">
+      <td colspan="7">Enter one support article URL or article ID per line, then click <strong>Update / Pull Content</strong>.</td>
+    </tr>
+  `;
+}
+
+function clearRows() {
+  STATE.rows.clear();
+  STATE.order = [];
+  DOM.tbody.innerHTML = '';
+}
+
+function getRows() {
+  return STATE.order.map((key) => STATE.rows.get(key)).filter(Boolean);
+}
+
+function addRow(row) {
+  STATE.rows.set(row.key, row);
+  STATE.order.push(row.key);
+}
+
+function getRow(key) {
+  return STATE.rows.get(key);
+}
+
+function createValidRow(source, articleId) {
+  const safeId = String(articleId).trim();
+  const pagePath = `${APP_CONFIG.pagePrefix}/${encodeURIComponent(safeId)}`;
+
+  return {
+    key: `article:${safeId}`,
+    source,
+    articleId: safeId,
+    pagePath,
+    previewAdminUrl: buildAdminUrl('preview', pagePath),
+    liveAdminUrl: buildAdminUrl('live', pagePath),
+    previewUrl: `${APP_CONFIG.previewBase}${pagePath}`,
+    liveUrl: `${APP_CONFIG.liveBase}${pagePath}`,
+    selected: false,
+    previewReady: false,
+    published: false,
+    invalid: false,
+    duplicate: false,
+    error: '',
+    previewState: 'Pending',
+    previewTone: 'neutral',
+    publishState: 'Not published',
+    publishTone: 'neutral',
+  };
+}
+
+function createInvalidRow(source, reason, index) {
+  return {
+    key: `invalid:${index}:${Date.now()}`,
+    source,
+    articleId: '—',
+    pagePath: '',
+    previewAdminUrl: '',
+    liveAdminUrl: '',
+    previewUrl: '',
+    liveUrl: '',
+    selected: false,
+    previewReady: false,
+    published: false,
+    invalid: true,
+    duplicate: false,
+    error: reason,
+    previewState: 'Invalid input',
+    previewTone: 'error',
+    publishState: 'Not publishable',
+    publishTone: 'neutral',
+  };
+}
+
+function createDuplicateRow(source, articleId, index) {
+  return {
+    key: `duplicate:${articleId}:${index}:${Date.now()}`,
+    source,
+    articleId,
+    pagePath: '',
+    previewAdminUrl: '',
+    liveAdminUrl: '',
+    previewUrl: '',
+    liveUrl: '',
+    selected: false,
+    previewReady: false,
+    published: false,
+    invalid: false,
+    duplicate: true,
+    error: 'Duplicate article ID skipped in this run.',
+    previewState: 'Skipped',
+    previewTone: 'warning',
+    publishState: 'Not publishable',
+    publishTone: 'neutral',
+  };
+}
+
+function isPublishableRow(row) {
+  return !!row && row.previewReady && !row.published && !row.invalid && !row.duplicate;
+}
+
+function buildAdminUrl(stage, path) {
+  const normalizedPath = normalizePath(path);
+  return `${APP_CONFIG.adminBase}/${stage}/${encodeURIComponent(APP_CONFIG.org)}/${encodeURIComponent(APP_CONFIG.site)}/${encodeURIComponent(APP_CONFIG.ref)}${normalizedPath}`;
+}
+
+function parseInputLines(raw) {
+  const lines = String(raw || '')
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  const results = [];
+  const seen = new Set();
+
+  lines.forEach((line, index) => {
+    const articleId = extractArticleId(line);
+
+    if (!articleId) {
+      results.push(createInvalidRow(line, 'Could not extract an article ID from this line.', index));
+      return;
     }
 
-    const pathMatchers = [
-      /\/support\/articles\/([^/?#]+)/i,
-      /\/contents\/([^/?#]+)/i,
-      /\/articles\/([^/?#]+)/i,
-      /\/support\/([^/?#]+)/i,
-    ];
+    if (seen.has(articleId)) {
+      results.push(createDuplicateRow(line, articleId, index));
+      return;
+    }
 
-    const match = pathMatchers
-      .map((pattern) => url.pathname.match(pattern))
-      .find(Boolean);
-    if (match) return normalizeArticleId(match[1]);
-  } catch (e) {
-    return '';
+    seen.add(articleId);
+    results.push(createValidRow(line, articleId));
+  });
+
+  return results;
+}
+
+function extractArticleId(input) {
+  const value = String(input || '').trim();
+  if (!value) return '';
+
+  // raw article id
+  if (!/^https?:\/\//i.test(value) && /^[A-Za-z0-9_-]+$/.test(value)) {
+    return value;
   }
+
+  // ATT support center style: ?content!000096905
+  const contentBangMatch = value.match(/content!([A-Za-z0-9_-]+)/i);
+  if (contentBangMatch) return contentBangMatch[1];
+
+  // generic id=... inside a URL-like string
+  const queryIdMatch = value.match(/[?&]id=([A-Za-z0-9_-]+)/i);
+  if (queryIdMatch) return queryIdMatch[1];
+
+  // support article page style
+  const supportArticleMatch = value.match(/\/support\/articles\/([A-Za-z0-9_-]+)/i);
+  if (supportArticleMatch) return supportArticleMatch[1];
+
+  // source API style
+  const contentsMatch = value.match(/\/contents\/([A-Za-z0-9_-]+)/i);
+  if (contentsMatch) return contentsMatch[1];
+
+  try {
+    const url = new URL(value);
+
+    const idParam = url.searchParams.get('id');
+    if (idParam) return idParam;
+
+    const supportMatch = url.pathname.match(/\/support\/articles\/([A-Za-z0-9_-]+)/i);
+    if (supportMatch) return supportMatch[1];
+
+    const contentsPathMatch = url.pathname.match(/\/contents\/([A-Za-z0-9_-]+)/i);
+    if (contentsPathMatch) return contentsPathMatch[1];
+
+    const segments = url.pathname.split('/').filter(Boolean);
+    const tail = segments[segments.length - 1];
+    if (tail && /^[A-Za-z0-9_-]{6,}$/.test(tail)) return tail;
+  } catch (e) {
+    // fall through
+  }
+
+  // last chance: pick a long numeric token from the line
+  const numericMatch = value.match(/\b\d{6,}\b/);
+  if (numericMatch) return numericMatch[0];
 
   return '';
 }
 
-function splitInput(text) {
-  return text
-    .split(/\r?\n|,/)
-    .map((value) => value.trim())
-    .filter(Boolean);
-}
-
-function parseInput(text) {
-  const tokens = splitInput(text);
-  const resolvedMap = new Map();
-  const invalid = [];
-
-  tokens.forEach((token) => {
-    const id = extractArticleId(token);
-    if (!id) {
-      invalid.push(token);
-      return;
-    }
-    if (!resolvedMap.has(id)) {
-      resolvedMap.set(id, { id, raw: token });
-    }
-  });
-
-  return {
-    resolved: [...resolvedMap.values()],
-    invalid,
-  };
-}
-
-function renderResolvedIds(resolved, invalid) {
-  els.resolvedIds.innerHTML = '';
-
-  if (!resolved.length && !invalid.length) {
-    els.resolvedIds.classList.add('empty-state');
-    els.resolvedIds.textContent = 'No article IDs parsed yet.';
+function renderRows() {
+  if (!STATE.order.length) {
+    renderEmptyState();
     return;
   }
 
-  els.resolvedIds.classList.remove('empty-state');
-
-  resolved.forEach((item) => {
-    const chip = document.createElement('span');
-    chip.className = 'chip';
-    chip.textContent = item.id;
-    els.resolvedIds.append(chip);
-  });
-
-  invalid.forEach((item) => {
-    const chip = document.createElement('span');
-    chip.className = 'chip invalid';
-    chip.textContent = `Unresolved: ${item}`;
-    els.resolvedIds.append(chip);
-  });
+  DOM.tbody.innerHTML = STATE.order
+    .map((key) => renderRowMarkup(STATE.rows.get(key)))
+    .join('');
 }
 
-function setSummary({
-  resolved = 0,
-  warmed = 0,
-  previewed = 0,
-  published = 0,
-  failed = 0,
-}) {
-  els.summaryResolved.textContent = String(resolved);
-  els.summaryWarmed.textContent = String(warmed);
-  els.summaryPreviewed.textContent = String(previewed);
-  els.summaryPublished.textContent = String(published);
-  els.summaryFailed.textContent = String(failed);
-}
-
-function formatTemplate(template, values) {
-  return template.replace(/\{(\w+)\}/g, (_, key) => encodeURIComponent(values[key] ?? ''));
-}
-
-function buildPreviewUrl(config, id) {
-  if (!config.org || !config.site || !config.branch) return '';
-  return `https://${config.branch}--${config.site}--${config.org}.aem.page/support/articles/${id}`;
-}
-
-function buildLiveUrl(config, id) {
-  if (!config.org || !config.site || !config.branch) return '';
-  return `https://${config.branch}--${config.site}--${config.org}.aem.live/support/articles/${id}`;
-}
-
-function clearResults() {
-  els.resultsBody.innerHTML = '';
-}
-
-function emptyStatusCell(label = 'pending') {
-  const td = document.createElement('td');
-  const badge = document.createElement('span');
-  badge.className = 'status-badge status-idle';
-  badge.textContent = label;
-  td.append(badge);
-  return td;
-}
-
-function setBadgeStatus(badge, status, label) {
-  badge.className = `status-badge status-${status}`;
-  badge.textContent = label;
-}
-
-function linkCell(url, label) {
-  const td = document.createElement('td');
-  if (!url) {
-    td.textContent = '—';
-    return td;
+function renderRow(row) {
+  const tr = DOM.tbody.querySelector(`tr[data-row-key="${cssEscape(row.key)}"]`);
+  if (!tr) {
+    renderRows();
+    return;
   }
 
-  const link = document.createElement('a');
-  link.href = url;
-  link.target = '_blank';
-  link.rel = 'noopener noreferrer';
-  link.textContent = label || url;
-  td.append(link);
-  return td;
+  tr.outerHTML = renderRowMarkup(row);
 }
 
-function createResultRow(item, config) {
-  const row = document.createElement('tr');
+function renderRowMarkup(row) {
+  const previewLink = row.previewReady && row.previewUrl
+    ? `<a href="${escapeHtml(row.previewUrl)}" target="_blank" rel="noopener noreferrer">Open preview</a>`
+    : '—';
 
-  const inputCell = document.createElement('td');
-  inputCell.textContent = item.raw;
+  const liveLink = row.published && row.liveUrl
+    ? `<a href="${escapeHtml(row.liveUrl)}" target="_blank" rel="noopener noreferrer">Open live</a>`
+    : '—';
 
-  const idCell = document.createElement('td');
-  idCell.textContent = item.id;
+  const publishDisabled = !isPublishableRow(row) || STATE.busy;
+  const checkboxDisabled = !isPublishableRow(row) || STATE.busy;
 
-  const warmCell = emptyStatusCell();
-  const previewCell = emptyStatusCell('skipped');
-  const publishCell = emptyStatusCell('skipped');
-
-  const previewUrlCell = linkCell(buildPreviewUrl(config, item.id), 'Preview');
-  const liveUrlCell = linkCell(buildLiveUrl(config, item.id), 'Live');
-
-  const messageCell = document.createElement('td');
-  messageCell.textContent = 'Queued';
-
-  row.append(
-    inputCell,
-    idCell,
-    warmCell,
-    previewCell,
-    publishCell,
-    previewUrlCell,
-    liveUrlCell,
-    messageCell,
-  );
-
-  els.resultsBody.append(row);
-
-  return {
-    row,
-    warmBadge: warmCell.querySelector('.status-badge'),
-    previewBadge: previewCell.querySelector('.status-badge'),
-    publishBadge: publishCell.querySelector('.status-badge'),
-    messageCell,
-  };
-}
-
-function shortError(error) {
-  const text = error?.message || String(error);
-  return text.length > 220 ? `${text.slice(0, 217)}...` : text;
-}
-
-async function fetchJson(endpoint) {
-  const response = await fetch(endpoint, {
-    headers: {
-      Accept: 'application/json',
-    },
-  });
-
-  const text = await response.text();
-  let data = null;
-
-  try {
-    data = text ? JSON.parse(text) : null;
-  } catch (e) {
-    data = null;
-  }
-
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status} from ${endpoint} :: ${data?.error || text || response.statusText}`);
-  }
-
-  return data;
-}
-
-async function postAction(url, adminToken) {
-  const headers = adminToken ? { 'x-auth-token': adminToken } : {};
-  const response = await fetch(url, {
-    method: 'POST',
-    headers,
-  });
-
-  const text = await response.text();
-
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status} from ${url} :: ${text || response.statusText}`);
-  }
-
-  return text;
-}
-
-async function warmArticle(item, config) {
-  const endpoint = formatTemplate(config.edgeEndpointTemplate, {
-    id: item.id,
-    org: config.org,
-    site: config.site,
-    branch: config.branch,
-  });
-
-  const payload = await fetchJson(endpoint);
-  return { endpoint, payload };
-}
-
-async function previewArticle(item, config) {
-  const endpoint = formatTemplate(config.previewEndpointTemplate, {
-    id: item.id,
-    org: config.org,
-    site: config.site,
-    branch: config.branch,
-  });
-
-  await postAction(endpoint, config.adminToken);
-  return endpoint;
-}
-
-async function publishArticle(item, config) {
-  const endpoint = formatTemplate(config.publishEndpointTemplate, {
-    id: item.id,
-    org: config.org,
-    site: config.site,
-    branch: config.branch,
-  });
-
-  await postAction(endpoint, config.adminToken);
-  return endpoint;
-}
-
-function setRunning(isRunning) {
-  els.parseBtn.disabled = isRunning;
-  els.runBtn.disabled = isRunning;
-  els.clearBtn.disabled = isRunning;
-}
-
-function resetApp() {
-  els.articleInput.value = '';
-  els.adminToken.value = '';
-  renderResolvedIds([], []);
-  clearResults();
-  els.resultsBody.innerHTML = `
-    <tr class="empty-row">
-      <td colspan="8">No batch has run yet.</td>
+  return `
+    <tr data-row-key="${escapeHtml(row.key)}">
+      <td>
+        <input
+          type="checkbox"
+          class="row-select"
+          data-row-key="${escapeHtml(row.key)}"
+          ${row.selected ? 'checked' : ''}
+          ${checkboxDisabled ? 'disabled' : ''}
+        />
+      </td>
+      <td class="cell-source">${escapeHtml(row.source)}</td>
+      <td class="cell-id"><code>${escapeHtml(row.articleId)}</code></td>
+      <td class="cell-path">
+        ${row.pagePath ? `<div><code>${escapeHtml(row.pagePath)}</code></div>` : '<div>—</div>'}
+        <div class="row-link">${previewLink}</div>
+      </td>
+      <td class="cell-status">
+        ${renderStatusPill(row.previewState, row.previewTone)}
+        ${row.error ? `<div class="row-error">${escapeHtml(row.error)}</div>` : ''}
+      </td>
+      <td class="cell-status">
+        ${renderStatusPill(row.publishState, row.publishTone)}
+        <div class="row-link">${liveLink}</div>
+      </td>
+      <td class="cell-actions">
+        <button
+          type="button"
+          class="secondary-action publish-row"
+          data-action="publish-row"
+          data-row-key="${escapeHtml(row.key)}"
+          ${publishDisabled ? 'disabled' : ''}
+        >
+          Publish
+        </button>
+      </td>
     </tr>
   `;
-  els.logOutput.textContent = 'Ready.';
-  setSummary({});
 }
 
-function parseCurrentInput() {
-  const { resolved, invalid } = parseInput(els.articleInput.value);
-  renderResolvedIds(resolved, invalid);
-  setSummary({
-    resolved: resolved.length,
-    warmed: 0,
-    previewed: 0,
-    published: 0,
-    failed: invalid.length ? invalid.length : 0,
-  });
-
-  if (invalid.length) {
-    appendLog(`Ignored ${invalid.length} unresolved input value(s).`, 'warn');
-  } else {
-    appendLog(`Parsed ${resolved.length} unique article ID(s).`, 'info');
-  }
-
-  return { resolved, invalid };
+function renderStatusPill(label, tone) {
+  return `<span class="status-pill tone-${escapeHtml(tone)}">${escapeHtml(label)}</span>`;
 }
 
-async function runBatch() {
-  const config = readConfigFromForm();
-  saveConfig(config);
-
-  const { resolved, invalid } = parseCurrentInput();
-
-  if (!resolved.length) {
-    appendLog('No valid article IDs were found. Nothing to run.', 'error');
-    return;
+function cssEscape(value) {
+  if (window.CSS && typeof window.CSS.escape === 'function') {
+    return window.CSS.escape(value);
   }
+  return String(value).replace(/"/g, '\\"');
+}
 
-  const shouldWarm = els.optionWarm.checked
-    || els.optionPreview.checked
-    || els.optionPublish.checked;
-  const shouldPreview = els.optionPreview.checked || els.optionPublish.checked;
-  const shouldPublish = els.optionPublish.checked;
-
-  if ((shouldPreview || shouldPublish) && !config.adminToken) {
-    appendLog('Admin token is required when preview or publish is enabled.', 'error');
-    els.adminToken.focus();
-    return;
-  }
-
-  clearResults();
-  appendLog(`Starting batch for ${resolved.length} article(s).`, 'info');
-  setRunning(true);
-
-  let warmed = 0;
-  let previewed = 0;
-  let published = 0;
-  let failed = invalid.length;
-
-  const processItem = async (item) => {
-    const result = createResultRow(item, config);
-
-    try {
-      if (shouldWarm) {
-        setBadgeStatus(result.warmBadge, 'running', 'running');
-        const warm = await warmArticle(item, config);
-        setBadgeStatus(result.warmBadge, 'ok', 'ok');
-        result.messageCell.textContent = `Warmed from ${warm.endpoint}`;
-        appendLog(`Warmed article ${item.id}.`, 'info');
-        warmed += 1;
-      } else {
-        setBadgeStatus(result.warmBadge, 'skipped', 'skipped');
-      }
-
-      if (shouldPreview) {
-        setBadgeStatus(result.previewBadge, 'running', 'running');
-        await previewArticle(item, config);
-        setBadgeStatus(result.previewBadge, 'ok', 'ok');
-        appendLog(`Previewed /support/articles/${item.id}.`, 'info');
-        previewed += 1;
-      } else {
-        setBadgeStatus(result.previewBadge, 'skipped', 'skipped');
-      }
-
-      if (shouldPublish) {
-        setBadgeStatus(result.publishBadge, 'running', 'running');
-        await publishArticle(item, config);
-        setBadgeStatus(result.publishBadge, 'ok', 'ok');
-        appendLog(`Published /support/articles/${item.id}.`, 'info');
-        published += 1;
-      } else {
-        setBadgeStatus(result.publishBadge, 'skipped', 'skipped');
-      }
-
-      if (!shouldPublish && shouldPreview) {
-        result.messageCell.textContent = 'Preview completed';
-      } else if (shouldPublish) {
-        result.messageCell.textContent = 'Publish completed';
-      } else {
-        result.messageCell.textContent = 'Warm completed';
-      }
-    } catch (error) {
-      failed += 1;
-      if (result.warmBadge.textContent === 'running') {
-        setBadgeStatus(result.warmBadge, 'error', 'error');
-      }
-      if (result.previewBadge.textContent === 'running') {
-        setBadgeStatus(result.previewBadge, 'error', 'error');
-      }
-      if (result.publishBadge.textContent === 'running') {
-        setBadgeStatus(result.publishBadge, 'error', 'error');
-      }
-
-      result.messageCell.textContent = shortError(error);
-      appendLog(`Failed article ${item.id}: ${shortError(error)}`, 'error');
+function onSelectAllChange(event) {
+  const checked = !!event.target.checked;
+  getRows().forEach((row) => {
+    if (isPublishableRow(row)) {
+      row.selected = checked;
+      renderRow(row);
     }
+  });
+  syncControls();
+}
 
-    setSummary({
-      resolved: resolved.length,
-      warmed,
-      previewed,
-      published,
-      failed,
-    });
-  };
+function onTableChange(event) {
+  const checkbox = event.target.closest('.row-select');
+  if (!checkbox) return;
+
+  const row = getRow(checkbox.dataset.rowKey);
+  if (!row) return;
+
+  row.selected = !!checkbox.checked;
+  syncControls();
+}
+
+function onTableClick(event) {
+  const button = event.target.closest('[data-action="publish-row"]');
+  if (!button) return;
+
+  const row = getRow(button.dataset.rowKey);
+  if (!row) return;
+
+  publishRows([row]);
+}
+
+async function onPullContentClick() {
+  if (STATE.busy) return;
+
+  const parsedRows = parseInputLines(DOM.input.value);
+
+  clearRows();
+  parsedRows.forEach(addRow);
+  renderRows();
+  updateSummary();
+  syncControls();
+
+  if (!parsedRows.length) {
+    setAppStatus('Nothing to process. Enter one article URL or ID per line.', 'warning');
+    return;
+  }
+
+  const validRows = getRows().filter((row) => !row.invalid && !row.duplicate);
+  if (!validRows.length) {
+    setAppStatus('No valid article IDs were found in the submitted input.', 'error');
+    return;
+  }
+
+  STATE.busy = true;
+  syncControls();
+  setAppStatus(`Generating ${validRows.length} support article preview page(s)...`, 'working');
+
+  for (const row of validRows) {
+    // eslint-disable-next-line no-await-in-loop
+    await generatePreviewPage(row);
+    renderRow(row);
+    updateSummary();
+    syncControls();
+  }
+
+  STATE.busy = false;
+  syncControls();
+
+  const readyCount = getRows().filter((row) => row.previewReady).length;
+  const failedCount = getRows().filter((row) => row.previewTone === 'error' || row.invalid).length;
+
+  if (failedCount > 0) {
+    setAppStatus(`Completed with ${readyCount} ready and ${failedCount} failed.`, 'warning');
+  } else {
+    setAppStatus(`Completed successfully. ${readyCount} support article page(s) are ready on preview.`, 'success');
+  }
+}
+
+async function onPublishSelectedClick() {
+  if (STATE.busy) return;
+
+  const selectedRows = getRows().filter((row) => row.selected && isPublishableRow(row));
+  if (!selectedRows.length) {
+    setAppStatus('Select at least one ready article before publishing.', 'warning');
+    return;
+  }
+
+  await publishRows(selectedRows);
+}
+
+async function onPublishAllClick() {
+  if (STATE.busy) return;
+
+  const readyRows = getRows().filter(isPublishableRow);
+  if (!readyRows.length) {
+    setAppStatus('No preview-ready articles are available to publish.', 'warning');
+    return;
+  }
+
+  await publishRows(readyRows);
+}
+
+async function generatePreviewPage(row) {
+  row.previewState = 'Generating preview';
+  row.previewTone = 'working';
+  row.publishState = 'Not published';
+  row.publishTone = 'neutral';
+  row.error = '';
+  row.previewReady = false;
+  row.published = false;
 
   try {
-    await resolved.reduce(
-      (chain, item) => chain.then(() => processItem(item)),
-      Promise.resolve(),
-    );
-  } finally {
-    setRunning(false);
-    appendLog('Batch run finished.', 'info');
+    const response = await postAdminAction(row.previewAdminUrl);
+
+    if (!response.ok) {
+      throw new Error(await buildResponseError(response, 'Preview generation failed'));
+    }
+
+    row.previewReady = true;
+    row.previewState = 'Ready on preview';
+    row.previewTone = 'success';
+    row.publishState = 'Ready to publish';
+    row.publishTone = 'success';
+  } catch (error) {
+    row.previewReady = false;
+    row.previewState = 'Failed';
+    row.previewTone = 'error';
+    row.publishState = 'Blocked';
+    row.publishTone = 'neutral';
+    row.error = error.message || 'Unknown preview error';
   }
 }
 
-function init() {
-  writeConfigToForm(loadConfig());
+async function publishRows(rows) {
+  STATE.busy = true;
+  syncControls();
+  setAppStatus(`Publishing ${rows.length} support article page(s) to live...`, 'working');
 
-  setSummary({});
-  renderResolvedIds([], []);
+  for (const row of rows) {
+    row.publishState = 'Publishing';
+    row.publishTone = 'working';
+    row.error = '';
+    renderRow(row);
 
-  els.parseBtn.addEventListener('click', parseCurrentInput);
-  els.runBtn.addEventListener('click', runBatch);
-  els.clearBtn.addEventListener('click', resetApp);
+    try {
+      // eslint-disable-next-line no-await-in-loop
+      const response = await postAdminAction(row.liveAdminUrl);
 
-  appendLog('App initialized.', 'info');
+      if (!response.ok) {
+        throw new Error(await buildResponseError(response, 'Publish failed'));
+      }
+
+      row.published = true;
+      row.selected = false;
+      row.publishState = 'Published on live';
+      row.publishTone = 'success';
+    } catch (error) {
+      row.published = false;
+      row.publishState = 'Publish failed';
+      row.publishTone = 'error';
+      row.error = error.message || 'Unknown publish error';
+    }
+
+    renderRow(row);
+    updateSummary();
+    syncControls();
+  }
+
+  STATE.busy = false;
+  syncControls();
+
+  const publishedCount = rows.filter((row) => row.published).length;
+  const failedCount = rows.length - publishedCount;
+
+  if (failedCount > 0) {
+    setAppStatus(`Publish completed with ${publishedCount} success and ${failedCount} failure(s).`, 'warning');
+  } else {
+    setAppStatus(`Published ${publishedCount} support article page(s) to live.`, 'success');
+  }
 }
 
-init();
+async function postAdminAction(url) {
+  return fetch(url, {
+    method: 'POST',
+    mode: 'cors',
+    credentials: 'include',
+  });
+}
+
+async function buildResponseError(response, fallbackMessage) {
+  const contentType = response.headers.get('content-type') || '';
+  let body = '';
+
+  try {
+    body = await response.text();
+  } catch (e) {
+    // ignore
+  }
+
+  let detail = body.trim();
+
+  if (contentType.includes('application/json') && detail) {
+    try {
+      const parsed = JSON.parse(detail);
+      detail = parsed.error || parsed.message || detail;
+    } catch (e) {
+      // keep text
+    }
+  }
+
+  if (detail.length > 300) {
+    detail = `${detail.slice(0, 300)}…`;
+  }
+
+  return `${fallbackMessage}: ${response.status} ${response.statusText}${detail ? ` — ${detail}` : ''}`;
+}

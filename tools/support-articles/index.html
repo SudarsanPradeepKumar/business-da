@@ -11,8 +11,9 @@
     <header class="support-app__header">
       <h1>Support Article Generator</h1>
       <p>
-        Enter one article URL or article ID per line. The app will generate the
-        support article page path, trigger preview generation, and show page status.
+        Enter one support article URL or article ID per line. The app will generate or
+        update the preview page on <code>.aem.page</code>. After review, you can publish
+        selected pages to <code>.aem.live</code>.
       </p>
     </header>
 
@@ -32,7 +33,7 @@ https://www.business.att.com/support/supportcenter.html?content!000096905#topic_
 
       <div class="support-app__actions">
         <button id="pull-content" class="button button--primary" type="button">
-          Update / Pull Content
+          Generate / Update Preview
         </button>
         <button id="publish-selected" class="button button--secondary" type="button" disabled>
           Publish Selected
@@ -70,8 +71,8 @@ https://www.business.att.com/support/supportcenter.html?content!000096905#topic_
       <div class="support-app__results-header">
         <h2>Article Status</h2>
         <p>
-          Preview generation should create the transformed page on
-          <code>.aem.page</code>. Publish actions should promote selected pages to
+          Preview generation creates or updates the transformed page on
+          <code>.aem.page</code>. Publish actions promote selected pages to
           <code>.aem.live</code>.
         </p>
       </div>
@@ -87,7 +88,7 @@ https://www.business.att.com/support/supportcenter.html?content!000096905#topic_
               <th scope="col">Article ID</th>
               <th scope="col">Support Page Path</th>
               <th scope="col">Preview URL</th>
-              <th scope="col">Pull / Preview Status</th>
+              <th scope="col">Preview Status</th>
               <th scope="col">Publish Status</th>
               <th scope="col">Actions</th>
             </tr>
@@ -122,7 +123,7 @@ https://www.business.att.com/support/supportcenter.html?content!000096905#topic_
         </td>
         <td class="cell-actions">
           <button type="button" class="button button--inline" data-action="pull">
-            Update
+            Update Preview
           </button>
           <button type="button" class="button button--inline" data-action="publish" disabled>
             Publish
