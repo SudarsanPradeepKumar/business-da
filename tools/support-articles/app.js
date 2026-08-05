@@ -53,6 +53,7 @@ async function bootstrap() {
     setAppStatus('Loading app configuration…', 'working');
 
     APP_CONFIG = await resolveAppConfig();
+    updateBrowserTitle();
 
     if (!APP_CONFIG.org || !APP_CONFIG.site || !APP_CONFIG.ref) {
       setAppStatus('Missing org/site/ref in the DA app URL or app-config.json.', 'error');
@@ -158,6 +159,10 @@ async function loadJsonConfig(relativePath) {
     console.warn('Proceeding without app-config.json overrides.', error);
     return {};
   }
+}
+
+function updateBrowserTitle() {
+  document.title = 'Support Article Generator';
 }
 
 function firstNonEmpty(...values) {
