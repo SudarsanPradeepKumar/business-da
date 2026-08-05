@@ -2,200 +2,71 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, viewport-fit=cover"
-    />
-    <title>Support Article Generator</title>
-    <meta
-      name="description"
-      content="DA App for importing Salesforce support articles and generating support article pages."
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Support Article Import</title>
     <link rel="stylesheet" href="./app.css" />
-    <script type="module" src="./app.js"></script>
   </head>
   <body>
-    <main class="app-shell">
-      <header class="app-header">
-        <div class="app-header__content">
-          <p class="app-eyebrow">DA App</p>
-          <h1>Support Article Generator</h1>
-          <p class="app-description">
-            Paste one or many Salesforce support article URLs or article IDs.
-            The app will normalize the IDs, call the Edge Function, and report
-            the generation status for the transformed support article pages.
-          </p>
+    <main class="support-import-app">
+      <section class="panel">
+        <h1>Support Article Import</h1>
+        <p class="help-text">
+          Paste one article per line. Each line can be either:
+        </p>
+        <ul class="help-list">
+          <li>an article ID like <code>000101394</code></li>
+          <li>or a full support/article URL</li>
+        </ul>
+
+        <label for="article-input" class="field-label">Article IDs or URLs</label>
+        <textarea
+          id="article-input"
+          class="article-input"
+          rows="10"
+          placeholder="000101394
+https://www.business.att.com/support/article?id=000101395
+/support/articles/000101396"
+        ></textarea>
+
+        <div class="actions">
+          <button id="pull-btn" class="button primary" type="button">
+            Update / Pull Content
+          </button>
+          <button id="publish-selected-btn" class="button secondary" type="button" disabled>
+            Publish Selected
+          </button>
+          <button id="publish-all-btn" class="button secondary" type="button" disabled>
+            Publish All
+          </button>
         </div>
-
-        <dl class="app-context" aria-label="DA App context">
-          <div class="app-context__item">
-            <dt>Org</dt>
-            <dd id="context-org">—</dd>
-          </div>
-          <div class="app-context__item">
-            <dt>Site</dt>
-            <dd id="context-site">—</dd>
-          </div>
-          <div class="app-context__item">
-            <dt>Branch</dt>
-            <dd id="context-ref">—</dd>
-          </div>
-        </dl>
-      </header>
-
-      <section class="panel" aria-labelledby="input-heading">
-        <div class="panel__header">
-          <div>
-            <h2 id="input-heading">Input</h2>
-            <p class="panel__description">
-              Enter one value per line, or separate multiple values with commas.
-            </p>
-          </div>
-        </div>
-
-        <form id="article-form" class="form-stack">
-          <div class="field">
-            <label for="article-input">Support article URLs or article IDs</label>
-            <textarea
-              id="article-input"
-              name="articleInput"
-              rows="10"
-              spellcheck="false"
-              placeholder="Examples:
-https://services.att.com/kmservices/v2/contents/000096905?app-id=gmarket
-https://www.business.att.com/support/supportcenter.html?content!000096905#topic_billingaccounts1
-000096905
-000101394"
-            ></textarea>
-            <p class="field-help">
-              Accepted input:
-              <code>000096905</code>,
-              <code>https://.../000096905</code>,
-              <code>...content!000096905...</code>
-            </p>
-          </div>
-
-          <div class="options-grid">
-            <label class="checkbox">
-              <input type="checkbox" id="enable-preview" checked />
-              <span>Preview generated page</span>
-            </label>
-
-            <label class="checkbox">
-              <input type="checkbox" id="enable-publish" />
-              <span>Publish after successful preview</span>
-            </label>
-          </div>
-
-          <div class="button-row">
-            <button type="button" id="parse-input" class="button button--secondary">
-              Parse input
-            </button>
-            <button type="submit" id="run-job" class="button button--primary" disabled>
-              Generate support article pages
-            </button>
-            <button type="button" id="clear-input" class="button button--ghost">
-              Clear
-            </button>
-          </div>
-        </form>
       </section>
 
-      <details class="panel panel--details">
-        <summary>Advanced settings</summary>
-
-        <div class="form-stack form-stack--top-gap">
-          <div class="field">
-            <label for="edge-function-endpoint">Edge Function endpoint</label>
-            <input
-              id="edge-function-endpoint"
-              type="url"
-              inputmode="url"
-              placeholder="https://edgefunction-pXXXXX-eYYYY-edge-api.adobeaemcloud.com/support/articles"
-            />
-            <p class="field-help">
-              Expected shape:
-              <code>.../support/articles?id=&lt;articleId&gt;</code>
-            </p>
-          </div>
-
-          <div class="field">
-            <label for="page-path-prefix">Generated page path prefix</label>
-            <input
-              id="page-path-prefix"
-              type="text"
-              value="/support/articles/"
-              placeholder="/support/articles/"
-            />
-          </div>
-        </div>
-      </details>
-
-      <section class="stats-grid" aria-label="Summary metrics">
-        <article class="stat-card">
-          <span class="stat-card__label">Total input</span>
-          <strong id="stat-total">0</strong>
-        </article>
-
-        <article class="stat-card">
-          <span class="stat-card__label">Valid IDs</span>
-          <strong id="stat-valid">0</strong>
-        </article>
-
-        <article class="stat-card">
-          <span class="stat-card__label">Generated</span>
-          <strong id="stat-generated">0</strong>
-        </article>
-
-        <article class="stat-card">
-          <span class="stat-card__label">Previewed</span>
-          <strong id="stat-previewed">0</strong>
-        </article>
-
-        <article class="stat-card">
-          <span class="stat-card__label">Published</span>
-          <strong id="stat-published">0</strong>
-        </article>
-
-        <article class="stat-card">
-          <span class="stat-card__label">Failed</span>
-          <strong id="stat-failed">0</strong>
-        </article>
-      </section>
-
-      <section class="panel" aria-labelledby="parsed-heading">
-        <div class="panel__header">
-          <div>
-            <h2 id="parsed-heading">Parsed article IDs</h2>
-            <p id="parse-summary" class="panel__description">
-              No input parsed yet.
-            </p>
-          </div>
+      <section class="panel status-panel">
+        <div class="status-header">
+          <h2>Status</h2>
+          <span id="job-status-pill" class="status-pill idle">Idle</span>
         </div>
 
-        <div id="parsed-empty" class="empty-state">
-          Parse the input to see the normalized article IDs that will be processed.
-        </div>
-
-        <ul id="parsed-id-list" class="parsed-id-list" hidden></ul>
-      </section>
-
-      <section class="panel" aria-labelledby="status-heading">
-        <div class="panel__header panel__header--status">
-          <div>
-            <h2 id="status-heading">Generation status</h2>
-            <p class="panel__description">
-              Each row represents the transformed support article page generated
-              for <code>/support/articles/&lt;id&gt;</code>.
-            </p>
+        <div id="summary" class="summary">
+          <div class="summary-item">
+            <span class="summary-label">Total</span>
+            <strong id="summary-total">0</strong>
           </div>
-
-          <div class="job-status">
-            <span id="job-status-pill" class="status-pill status-pill--idle">Idle</span>
-            <div class="job-status__progress">
-              <progress id="job-progress" max="100" value="0"></progress>
-              <span id="job-progress-label">0%</span>
-            </div>
+          <div class="summary-item">
+            <span class="summary-label">Pulled</span>
+            <strong id="summary-pulled">0</strong>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Ready to Publish</span>
+            <strong id="summary-ready">0</strong>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Published</span>
+            <strong id="summary-published">0</strong>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">Failed</span>
+            <strong id="summary-failed">0</strong>
           </div>
         </div>
 
@@ -203,68 +74,27 @@ https://www.business.att.com/support/supportcenter.html?content!000096905#topic_
           <table class="status-table">
             <thead>
               <tr>
-                <th scope="col">Input</th>
-                <th scope="col">Article ID</th>
-                <th scope="col">Status</th>
-                <th scope="col">Support page</th>
-                <th scope="col">Preview</th>
-                <th scope="col">Live</th>
-                <th scope="col">Message</th>
+                <th>Select</th>
+                <th>Input</th>
+                <th>Article ID</th>
+                <th>Pull Status</th>
+                <th>Page Status</th>
+                <th>Preview</th>
+                <th>Publish</th>
               </tr>
             </thead>
             <tbody id="status-table-body">
-              <tr id="status-placeholder" class="placeholder-row">
-                <td colspan="7">No generation job has been run yet.</td>
+              <tr>
+                <td colspan="7" class="empty-state">
+                  No articles processed yet.
+                </td>
               </tr>
             </tbody>
           </table>
         </div>
       </section>
-
-      <section class="panel" aria-labelledby="activity-heading">
-        <div class="panel__header">
-          <div>
-            <h2 id="activity-heading">Activity log</h2>
-            <p class="panel__description">
-              Step-by-step execution events for the current run.
-            </p>
-          </div>
-        </div>
-
-        <ol id="activity-log" class="activity-log" aria-live="polite">
-          <li id="activity-empty" class="activity-log__empty">No activity yet.</li>
-        </ol>
-      </section>
     </main>
 
-    <template id="parsed-id-item-template">
-      <li class="parsed-id-item">
-        <div class="parsed-id-item__content">
-          <strong class="parsed-id-item__id"></strong>
-          <small class="parsed-id-item__source"></small>
-        </div>
-        <span class="status-pill status-pill--pending">Ready</span>
-      </li>
-    </template>
-
-    <template id="status-row-template">
-      <tr>
-        <td class="status-table__input"></td>
-        <td class="status-table__id"></td>
-        <td class="status-table__state">
-          <span class="status-pill"></span>
-        </td>
-        <td class="status-table__path">
-          <code class="page-path"></code>
-        </td>
-        <td class="status-table__preview">
-          <a class="link-preview" href="#" target="_blank" rel="noopener noreferrer">Preview</a>
-        </td>
-        <td class="status-table__live">
-          <a class="link-live" href="#" target="_blank" rel="noopener noreferrer">Live</a>
-        </td>
-        <td class="status-table__message"></td>
-      </tr>
-    </template>
+    <script type="module" src="./app.js"></script>
   </body>
 </html>
