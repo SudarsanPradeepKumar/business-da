@@ -385,25 +385,31 @@ function decorateButtons(main) {
 
 
 function moveGeneratedTableHeadersIntoBlocks(main) {
-  main.querySelectorAll('.name').forEach((block) => {
-    if (block.querySelector(':scope > .support-article-table-header')) return;
+  const paragraphs = [...main.querySelectorAll('.default-content-wrapper > p')];
 
-    const section = block.closest('.section');
-    const contentWrapper = section?.querySelector('.default-content-wrapper');
-    if (!contentWrapper) return;
+  paragraphs.forEach((paragraph) => {
+    const text = paragraph.textContent.trim();
+    if (!text.includes('|')) return;
 
-    const marker = [...contentWrapper.children]
-      .reverse()
-      .find((element) => element.tagName === 'P' && element.textContent.includes('|'));
-
-    if (!marker) return;
-
-    const labels = marker.textContent
-      .split('|')
-      .map((label) => label.trim())
-      .filter(Boolean);
-
+    const labels = text.split('|').map((label) => label.trim()).filter(Boolean);
     if (labels.length < 2) return;
+
+    const section = paragraph.closest('.section');
+    if (!section) return;
+
+    const followingBlocks = [...section.querySelectorAll('[data-block-name]')]
+      .filter((block) => (
+        paragraph.compareDocumentPosition(block) & Node.DOCUMENT_POSITION_FOLLOWING
+      ));
+
+    const block = followingBlocks.find((candidate) => {
+      if (candidate.querySelector(':scope > .support-article-table-header')) return false;
+
+      const firstRow = candidate.firstElementChild;
+      return firstRow && firstRow.children.length === labels.length;
+    });
+
+    if (!block) return;
 
     const headerRow = document.createElement('div');
     headerRow.className = 'support-article-table-header';
@@ -414,8 +420,10 @@ function moveGeneratedTableHeadersIntoBlocks(main) {
       headerRow.append(cell);
     });
 
+    block.style.setProperty('--support-article-table-columns', labels.length);
+    block.classList.add('support-article-data-table');
     block.prepend(headerRow);
-    marker.remove();
+    paragraph.remove();
   });
 }
 

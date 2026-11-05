@@ -430,33 +430,54 @@ main .support-article-main [data-video-embed="true"] {
   }
 }
 
-main .support-article-main .name-wrapper {
+
+/* Generated table blocks: supports source blocks named .name, .link, etc. */
+body.support-articles main .support-article-main .support-article-data-table {
   width: 100%;
-  max-width: 100%;
-  margin-block: var(--spacing-16);
   overflow-x: auto;
+  border: 1px solid #d7deea;
+  border-radius: 8px;
 }
 
-main .support-article-main .name > .support-article-table-header {
+main .support-article-main .support-article-data-table > div {
   display: grid;
-  grid-template-columns: minmax(14rem, 1.15fr) minmax(7rem, 0.35fr) minmax(24rem, 2.5fr);
-  gap: var(--spacing-16);
-  padding: var(--spacing-12) var(--spacing-16);
-  border-bottom: 1px solid var(--color-gray-675, #d7deea);
-  background: var(--color-gray-100, #f7f9fc);
-  font-family: var(--font-family-bold);
+  grid-template-columns: minmax(14rem, 1.15fr) minmax(14rem, 1.5fr) minmax(20rem, 2fr);
+  gap: 1rem;
+  align-items: start;
+  min-width: 760px;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #e3e8ef;
 }
 
-main .support-article-table-header span {
+main .support-article-main .support-article-data-table > div:last-child {
+  border-bottom: 0;
+}
+
+main .support-article-main .support-article-data-table > .support-article-table-header {
+  background: #f4f4f4;
+  font-family: var(--heading-font-family);
+  font-weight: 700;
+}
+
+main .support-article-main .support-article-data-table > div:not(.support-article-table-header):nth-child(odd) {
+  background: #f8fafc;
+}
+
+main .support-article-main .support-article-data-table > div > div {
   min-width: 0;
+  overflow-wrap: anywhere;
 }
 
-@media (width < 760px) {
-  main .support-article-table-header {
-    gap: var(--spacing-8);
-  }
+main .support-article-main .support-article-data-table p {
+  margin: 0;
+  padding: 0;
 }
 
+/* FAC codes: keep the value column compact and code-like */
+main .support-article-main .name.support-article-data-table > div:not(.support-article-table-header) > div:nth-child(2) {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  white-space: nowrap;
+}
 
 main .support-article-main .name {
   width: 100%;
