@@ -437,6 +437,31 @@ main .support-article-main .name-wrapper {
   overflow-x: auto;
 }
 
+main .support-article-table-header {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: var(--spacing-16);
+  margin: 0;
+  padding: var(--spacing-12) var(--spacing-16);
+  border: 1px solid var(--color-gray-675, #d7deea);
+  border-bottom: 0;
+  border-radius: 8px 8px 0 0;
+  background: var(--color-gray-100, #f7f9fc);
+  font-family: var(--font-family-bold);
+}
+
+main .support-article-table-header span {
+  min-width: 0;
+}
+
+@media (width < 760px) {
+  main .support-article-table-header {
+    gap: var(--spacing-8);
+  }
+}
+
+
 main .support-article-main .name {
   width: 100%;
   border: 1px solid var(--color-gray-675, #d7deea);
