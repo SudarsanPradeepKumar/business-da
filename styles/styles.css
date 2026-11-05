@@ -486,6 +486,46 @@ main .support-article-main .name {
   overflow: hidden;
 }
 
+/* Button Legend images: display adjacent images in a responsive gallery. */
+main .support-article-main .button-legend-gallery {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+main .support-article-main .button-legend-gallery > p {
+  display: flex;
+  flex: 0 1 calc(33.333% - 0.67rem);
+  min-width: 150px;
+  margin: 0;
+}
+
+main .support-article-main .button-legend-gallery picture {
+  display: block;
+  width: 100%;
+}
+
+main .support-article-main .button-legend-gallery img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+@media (max-width: 700px) {
+  main .support-article-main .button-legend-gallery > p {
+    flex-basis: calc(50% - 0.5rem);
+  }
+}
+
+@media (max-width: 460px) {
+  main .support-article-main .button-legend-gallery > p {
+    flex-basis: 100%;
+  }
+}
+
 main .support-article-main .name > div {
   display: grid;
   grid-template-columns: minmax(14rem, 1.15fr) minmax(7rem, 0.35fr) minmax(24rem, 2.5fr);

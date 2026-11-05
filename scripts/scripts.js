@@ -427,6 +427,75 @@ function moveGeneratedTableHeadersIntoBlocks(main) {
   });
 }
 
+function isImageOnlyParagraph(element) {
+  if (element.tagName !== 'P') return false;
+  if (!element.querySelector('img, picture')) return false;
+
+  // Exclude captions or explanatory text.
+  return !element.textContent.trim();
+}
+
+/**
+ * Groups consecutive, image-only paragraphs beneath each Button Legend heading.
+ * Call after decorateBlocks() so the added wrapper is not processed as an EDS block.
+ * @param {Element} main
+ */
+function groupButtonLegendImages(main) {
+  const contentElements = [
+    ...main.querySelectorAll('h1, h2, h3, h4, h5, h6, p'),
+  ];
+
+  const headings = contentElements.filter(
+    (element) => /^button legend$/i.test(element.textContent.trim()),
+  );
+
+  headings.forEach((heading) => {
+    const headingLevel = Number(heading.tagName.substring(1));
+    const imageParagraphs = [];
+    const startIndex = contentElements.indexOf(heading);
+
+    for (let i = startIndex + 1; i < contentElements.length; i += 1) {
+      const element = contentElements[i];
+
+      if (/^H[1-6]$/.test(element.tagName)) {
+        const level = Number(element.tagName.substring(1));
+        if (level <= headingLevel) break;
+      }
+
+      if (isImageOnlyParagraph(element)) {
+        imageParagraphs.push(element);
+      }
+    }
+
+    // Wrap only consecutive image paragraphs with the same parent. This preserves
+    // intervening headings, captions, and other article content in their original order.
+    let group = [];
+
+    const wrapGroup = () => {
+      if (!group.length) return;
+
+      const first = group[0];
+      const gallery = document.createElement('div');
+      gallery.className = 'button-legend-gallery';
+      first.parentElement.insertBefore(gallery, first);
+      group.forEach((paragraph) => gallery.append(paragraph));
+      group = [];
+    };
+
+    imageParagraphs.forEach((paragraph, index) => {
+      const previous = group[group.length - 1];
+      const isAdjacent = previous
+        && previous.parentElement === paragraph.parentElement
+        && previous.nextElementSibling === paragraph;
+
+      if (group.length && !isAdjacent) wrapGroup();
+      group.push(paragraph);
+
+      if (index === imageParagraphs.length - 1) wrapGroup();
+    });
+  });
+}
+
 /**
  * Decorates the main element.
  * @param {Element} main The main element
@@ -439,6 +508,7 @@ export function decorateMain(main) {
   decorateBlocks(main);
   moveGeneratedTableHeadersIntoBlocks(main);
   decorateButtons(main);
+  groupButtonLegendImages(main);
   buildSupportArticleLayout(main);
 }
 
