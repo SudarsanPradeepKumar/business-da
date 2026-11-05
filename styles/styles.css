@@ -488,7 +488,6 @@ main .support-article-main .name {
 
 /* Button Legend images: display adjacent images in a responsive gallery. */
 main .support-article-main .button-legend-gallery {
-  display: flex;
   flex-wrap: wrap;
   align-items: flex-start;
   gap: 1rem;
