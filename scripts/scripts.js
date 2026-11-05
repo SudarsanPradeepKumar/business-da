@@ -383,6 +383,42 @@ function decorateButtons(main) {
   });
 }
 
+
+function moveGeneratedTableHeadersIntoBlocks(main) {
+  main.querySelectorAll('.name').forEach((block) => {
+    if (block.querySelector(':scope > .support-article-table-header')) return;
+
+    const section = block.closest('.section');
+    const contentWrapper = section?.querySelector('.default-content-wrapper');
+    if (!contentWrapper) return;
+
+    const marker = [...contentWrapper.children]
+      .reverse()
+      .find((element) => element.tagName === 'P' && element.textContent.includes('|'));
+
+    if (!marker) return;
+
+    const labels = marker.textContent
+      .split('|')
+      .map((label) => label.trim())
+      .filter(Boolean);
+
+    if (labels.length < 2) return;
+
+    const headerRow = document.createElement('div');
+    headerRow.className = 'support-article-table-header';
+
+    labels.forEach((label) => {
+      const cell = document.createElement('div');
+      cell.textContent = label;
+      headerRow.append(cell);
+    });
+
+    block.prepend(headerRow);
+    marker.remove();
+  });
+}
+
 /**
  * Decorates the main element.
  * @param {Element} main The main element
@@ -393,6 +429,7 @@ export function decorateMain(main) {
   buildAutoBlocks(main);
   decorateSections(main);
   decorateBlocks(main);
+  moveGeneratedTableHeadersIntoBlocks(main);
   decorateButtons(main);
   buildSupportArticleLayout(main);
 }

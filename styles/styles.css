@@ -437,16 +437,12 @@ main .support-article-main .name-wrapper {
   overflow-x: auto;
 }
 
-main .support-article-table-header {
+main .support-article-main .name > .support-article-table-header {
   display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(0, 1fr);
+  grid-template-columns: minmax(14rem, 1.15fr) minmax(7rem, 0.35fr) minmax(24rem, 2.5fr);
   gap: var(--spacing-16);
-  margin: 0;
   padding: var(--spacing-12) var(--spacing-16);
-  border: 1px solid var(--color-gray-675, #d7deea);
-  border-bottom: 0;
-  border-radius: 8px 8px 0 0;
+  border-bottom: 1px solid var(--color-gray-675, #d7deea);
   background: var(--color-gray-100, #f7f9fc);
   font-family: var(--font-family-bold);
 }
