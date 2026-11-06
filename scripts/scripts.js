@@ -10,7 +10,6 @@ import {
   loadSection,
   loadSections,
   loadCSS,
-  loadBlock
 } from './aem.js';
 
 /**
@@ -546,9 +545,6 @@ async function loadLazy(doc) {
 
   const main = doc.querySelector('main');
   await loadSections(main);
-
-  const unhandledVideoBlocks = [...main.querySelectorAll('.video.block[data-block-status="initialized"]')];
-  await Promise.all(unhandledVideoBlocks.map(loadBlock));
 
   const { hash } = window.location;
   const element = hash ? doc.getElementById(hash.substring(1)) : false;
