@@ -1,0 +1,98 @@
+/* stylelint-disable no-duplicate-selectors, no-descending-specificity */
+
+/* Brand-specific overrides for video block */
+
+.video {
+  width: 100%; /* fixes: wrapper collapses when content is empty */
+  max-width: 900px;
+  margin: 24px auto;
+  text-align: center;
+}
+
+.video[data-embed-loaded='false']:not(.placeholder) {
+  aspect-ratio: 16 / 9;
+}
+
+.video > div {
+  display: block; /* fixes: flex centering collapses embed wrapper width */
+  width: 100%;
+}
+
+.video video {
+  max-width: 100%;
+}
+
+.video .video-placeholder {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  position: relative;
+}
+
+.video .video-placeholder > * {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  inset: 0;
+}
+
+.video[data-embed-loaded='true'] .video-placeholder,
+.video[data-embed-loaded='false'] .video-placeholder + * {
+  visibility: hidden;
+  height: 0;
+  width: 0;
+}
+
+.video .video-placeholder picture img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.video .video-placeholder-play button {
+  position: relative;
+  display: block;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  outline: 2px solid;
+  padding: 0;
+}
+
+.video .video-placeholder-play button::before {
+  content: '';
+  display: block;
+  box-sizing: border-box;
+  position: absolute;
+  width: 0;
+  height: 24px;
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-left: 18px solid;
+  top: 50%;
+  left: calc(50% + 2px);
+  transform: translate(-50%, -50%);
+}
+
+.video .video-placeholder-play button:focus,
+.video .video-placeholder-play button:focus-visible {
+  outline: 2px solid var(--color-text, black);
+  outline-offset: 2px;
+  background-color: var(--color-text, black);
+}
+
+.video .video-embed-wrapper {
+  position: relative;
+  width: 100%;
+  height: 0;
+  padding-bottom: 56.25%; /* 56.25% of parent width = 16:9 height */
+}
+
+.video .video-embed-wrapper iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}

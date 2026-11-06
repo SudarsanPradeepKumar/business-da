@@ -583,7 +583,12 @@ function decorateBlock(block) {
  * @param {Element} main The container element
  */
 function decorateBlocks(main) {
-  main.querySelectorAll('div.section > div > div').forEach(decorateBlock);
+  main.querySelectorAll('div.section > div > div').forEach((block) => {
+    if (block.classList.contains('default-content-wrapper') || isNonBlock(block)) return;
+    decorateBlock(block);
+  });
+
+  main.querySelectorAll('.video:not(.block)').forEach(decorateBlock);
 }
 
 /**
